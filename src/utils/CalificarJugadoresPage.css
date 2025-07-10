@@ -1,0 +1,108 @@
+.calificar-container {
+  padding: 20px;
+  margin-top: 80px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.titulo {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+}
+
+.subtitulo {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.partido-lista,
+.jugador-lista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.partido-item,
+.jugador-card {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.boton,
+.boton-guardar,
+.boton.volver {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  margin-top: 10px;
+  cursor: pointer;
+  border-radius: 8px;
+  font-weight: bold;
+  width: 100%;
+  transition: background 0.3s;
+}
+
+.boton:hover,
+.boton-guardar:hover,
+.boton.volver:hover {
+  background-color: #3e8e41;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: 8px;
+  margin-top: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* ✅ Estas clases deben estar fuera del media query */
+.calificado {
+  background-color: #e0ffe0;
+  border-left: 5px solid #4caf50;
+  opacity: 0.8;
+}
+
+.calificado-texto {
+  font-style: italic;
+  color: #4caf50;
+  margin-top: 5px;
+}
+
+.mensaje {
+  background-color: #e0ffe0;
+  color: #2e7d32;
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  margin: 10px 0 20px 0;
+}
+
+/* RESPONSIVE solo para ajustes en pantallas pequeñas */
+@media screen and (max-width: 480px) {
+  .titulo {
+    font-size: 1.5rem;
+  }
+
+  .jugador-card {
+    padding: 10px;
+  }
+
+  .input, .textarea {
+    font-size: 0.9rem;
+  }
+}

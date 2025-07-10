@@ -1,0 +1,234 @@
+/* Normaliza y evita scroll horizontal global */
+/* Aseguramos que el html y el body ocupen todo el alto */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+/* Fondo principal */
+.registro-container {
+  background-image: url('https://images.unsplash.com/photo-1521412644187-c49fa049e84d');
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
+   min-height: 100vh;
+  display: flex;
+  justify-content: center; /* Centra horizontalmente */
+  align-items: center;     /* Centra verticalmente */
+  padding: 20px; /* importante en mobile para que no quede pegado a los bordes */
+  background-color: #f0f0f0;
+  box-sizing: border-box;
+}
+
+/* Tarjeta del formulario */
+.registro-card {
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+/* Título */
+.registro-title {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #1d4ed8;
+  font-size: 1.8rem;
+}
+/* Estilo para el select (sexo) */
+.registro-form select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  box-sizing: border-box;
+  background-color: #fff;
+  appearance: none; /* quita la flechita default en algunos navegadores */
+}
+
+/* Estilo para input de edad */
+.registro-form input[type="number"] {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+  
+
+/* Formulario */
+.registro-form {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.registro-form input[type="text"],
+.registro-form input[type="email"],
+.registro-form input[type="password"],
+.registro-form input[type="file"] {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+/* Lista de sugerencias */
+.sugerencias-lista {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.sugerencias-lista li {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.sugerencias-lista li:hover {
+  background-color: #f0f0f0;
+}
+
+/* Vista previa de imagen */
+.preview-container {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.preview-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+}
+
+/* Botón */
+.registro-form button {
+  width: 100%;
+  padding: 14px;
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.registro-form button:hover {
+  background-color: #0056b3;
+}
+
+/* Botón volver */
+.volver-btn {
+  margin-top: 10px;
+  background: transparent;
+  border: none;
+  color: #007bff;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.volver-btn:hover {
+  color: #0056b3;
+}
+
+/* Celulares */
+@media (max-width: 480px) {
+  .registro-card {
+    padding: 16px;
+    max-width: 95%;
+  }
+
+  .registro-title {
+    font-size: 1.4rem;
+  }
+
+  .registro-form input,
+  .registro-form button {
+    font-size: 15px;
+    padding: 10px;
+  }
+
+  .preview-image {
+    width: 70px;
+    height: 70px;
+  }
+}
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* fondo oscuro translúcido */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 90%;
+  width: 350px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  animation: fadeInModal 0.3s ease-in-out;
+}
+
+.modal-content p {
+  margin-bottom: 16px;
+  font-size: 16px;
+  color: #333;
+}
+
+.modal-content button {
+  padding: 10px 20px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.modal-content button:hover {
+  background-color: #0056b3;
+}
+
+/* Animación de entrada */
+@keyframes fadeInModal {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

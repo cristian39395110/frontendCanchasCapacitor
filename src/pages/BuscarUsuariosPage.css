@@ -1,0 +1,205 @@
+.perfil-container {
+  max-width: 800px;
+  margin: auto;
+  padding: 16px;
+  font-family: sans-serif;
+  padding-bottom: 80px;
+}
+
+.filtros-busqueda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+  justify-content: center;
+  align-items: center;
+}
+
+.filtros-busqueda input {
+  padding: 10px;
+  font-size: 14px;
+  flex: 1;
+  min-width: 150px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+/* 🔄 SWITCH "Solo amigos" */
+.toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 20px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px; width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #007bff;
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+/* 🧍 Tarjetas de usuario estilo lista */
+.usuario-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-bottom: 1px solid #eee;
+  background-color: #fff;
+  transition: background 0.2s;
+}
+
+.usuario-card:hover {
+  background-color: #f9f9f9;
+}
+
+.foto-usuario {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #ddd;
+  cursor: pointer;
+}
+
+.usuario-card > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 13px;
+}
+
+.usuario-card h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.usuario-card p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #555;
+}
+
+/* 🎯 Botones con íconos */
+.acciones-usuario {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.acciones-usuario button {
+  padding: 4px 6px;
+  font-size: 16px;
+  border-radius: 50%;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.acciones-usuario button:hover {
+  background-color: #f0f0f0;
+}
+
+.acciones-usuario button:disabled {
+  color: #999;
+  cursor: not-allowed;
+}
+
+.boton-solicitud-enviada {
+  background-color: #d1e7dd;
+  color: #1e5631;
+  border: 1px solid #badbcc;
+  font-size: 14px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  cursor: default;
+  font-weight: 500;
+}
+
+
+/* ⬅️➡️ Paginación */
+.paginacion {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.cargando {
+  text-align: center;
+  font-style: italic;
+  margin-top: 16px;
+}
+
+/* 📩 Solicitudes recibidas */
+.solicitudes-recibidas {
+  margin-bottom: 20px;
+}
+
+/* 📱 Responsive móvil */
+@media screen and (max-width: 600px) {
+  .usuario-card {
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    padding: 6px 8px;
+  }
+
+  .acciones-usuario {
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+
+  .usuario-card h4 {
+    font-size: 13px;
+  }
+
+  .usuario-card p {
+    font-size: 11px;
+  }
+
+  .foto-usuario {
+    width: 36px;
+    height: 36px;
+  }
+}

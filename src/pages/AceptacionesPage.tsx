@@ -1,0 +1,220 @@
+import React, { useEffect, useState } from 'react';
+import Navbar from '../components/Navbar';
+import { API_URL } from '../config';
+import axios from 'axios';
+import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { motion, AnimatePresence } from 'framer-motion';
+import { toast, ToastContainer } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+import 'react-toastify/dist/ReactToastify.css';
+import './AceptacionesPage.css';
+
+const AceptacionesPage: React.FC = () => {
+  const [partidosConAceptaciones, setPartidosConAceptaciones] = useState<any[]>([]);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [botonBloqueado, setBotonBloqueado] = useState<{ [key: number]: boolean }>({});
+  const [cantidadesEditadas, setCantidadesEditadas] = useState<{ [key: number]: number }>({});
+  const usuarioId = localStorage.getItem('usuarioId') ?? '';
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    refresh();
+  }, [usuarioId]);
+
+  const refresh = async () => {
+    if (!usuarioId) return;
+    const res = await fetch(`${API_URL}/api/pendientes/aceptadas/${usuarioId}`);
+    const data = await res.json();
+    setPartidosConAceptaciones(data);
+  };
+
+  const rechazarJugador = async (usuarioIdRechazado: number, partidoId: number) => {
+    try {
+      const res = await axios.post(`${API_URL}/api/pendientes/rechazar`, {
+        usuarioId: usuarioId,
+        jugadorId: usuarioIdRechazado,
+        partidoId
+      });
+      if (res.data.error) {
+        toast.error(res.data.error);
+      } else {
+        toast.success(res.data.mensaje || 'Jugador rechazado correctamente');
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || '❌ No se pudo rechazar al jugador.');
+    }
+    refresh();
+  };
+
+  const solicitarNuevoJugador = async (partidoId: number) => {
+    if (botonBloqueado[partidoId]) return;
+    setBotonBloqueado((prev) => ({ ...prev, [partidoId]: true }));
+
+    try {
+      const res = await axios.post(`${API_URL}/api/partidos/reenviar-invitacion`, { partidoId });
+      toast.success(res.data.mensaje || '🔁 Nueva invitación enviada a jugadores interesados.');
+    } catch (error) {
+      toast.error('❌ No se pudo enviar la invitación.');
+    }
+
+    setTimeout(() => {
+      setBotonBloqueado((prev) => ({ ...prev, [partidoId]: false }));
+    }, 10000);
+
+    refresh();
+  };
+
+ const actualizarCantidadJugadores = async (partidoId: number, nuevaCantidad: number) => {
+  try {
+    await axios.put(`${API_URL}/api/partidos/${partidoId}/actualizar-cantidad`, {
+      cantidadJugadores: nuevaCantidad,
+    });
+    toast.success('Cantidad de jugadores actualizada ✅');
+    refresh();
+  } catch (err) {
+    toast.error('❌ No se pudo actualizar la cantidad');
+  }
+};
+
+  const toggleExpand = (id: number) => {
+    setExpandedId(expandedId === id ? null : id);
+  };
+
+  return (
+    <div>
+      <Navbar />
+      <div className="pagina">
+        <ToastContainer />
+        <div className="contenedor">
+          <h2 className="titulo">✅ Aceptaciones de jugadores</h2>
+
+          {partidosConAceptaciones.length === 0 ? (
+            <p className="mensaje">No hay jugadores que hayan aceptado tus invitaciones aún.</p>
+          ) : (
+            partidosConAceptaciones.map((partido: any) => {
+              const cantidadJugadores = cantidadesEditadas[partido.id] ?? partido.cantidadJugadores ?? 0;
+              const confirmados = partido.usuariosAceptaron.filter((u: any) => u.estado?.trim() === 'confirmado').length;
+              const total = cantidadJugadores;
+              const porcentaje = total > 0 ? Math.round((confirmados / total) * 100) : 0;
+              const isExpanded = expandedId === partido.id;
+              const soyOrganizador = Number(partido.organizadorId) === Number(usuarioId);
+              const faltan = cantidadJugadores - confirmados;
+
+              return (
+                <motion.div key={partido.id} layout className="tarjeta">
+                  <div className="cabecera">
+                    <div>
+                      <p className="detalle">📍 <strong>Cancha:</strong> {partido.canchaNombreManual || partido.lugar}</p>
+<p className="detalle">🌎 <strong>Localidad:</strong> {partido.localidad}</p>
+<p className="detalle">🚻 <strong>Sexo:</strong> {partido.sexo}</p>
+<p className="detalle">🎂 <strong>Edad:</strong> {partido.rangoEdad}</p>
+{partido.latitud && partido.longitud && (
+  <a
+    href={`https://www.google.com/maps?q=${partido.latitud},${partido.longitud}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="enlace-mapa"
+  >
+    🧭 Cómo llegar
+  </a>
+)}
+
+                      <p className="detalle">📅 <strong>Fecha:</strong> {partido.fecha} | ⏰ <strong>Hora:</strong> {partido.hora}</p>
+                      <div className="barra">
+                        <div className="progreso" style={{ width: `${porcentaje}%` }}></div>
+                      </div>
+                      <p className="detalle-chico">✅ Confirmados: {confirmados}/{cantidadJugadores} ({porcentaje}%)</p>
+                      {soyOrganizador && (
+                        <form
+                          onSubmit={(e) => {
+                            e.preventDefault();
+                            const input = e.currentTarget.elements.namedItem('cantidad') as HTMLInputElement;
+                            const nuevaCantidad = Number(input.value);
+                            actualizarCantidadJugadores(partido.id, nuevaCantidad);
+                            setCantidadesEditadas((prev) => ({ ...prev, [partido.id]: nuevaCantidad }));
+                          }}
+                          className="form-editar-cantidad"
+                        >
+                          <label className="form-label">✏️ Jugadores necesarios:</label>
+                          <input
+                            className="input-cantidad"
+                            name="cantidad"
+                            type="number"
+                            value={cantidadJugadores}
+                            min={confirmados}
+                            onChange={(e) => {
+                              const value = Number(e.target.value);
+                              setCantidadesEditadas((prev) => ({ ...prev, [partido.id]: value }));
+                            }}
+                          />
+                          <button type="submit" className="boton-accion">Guardar</button>
+                        </form>
+                      )}
+                    </div>
+                    <span className="icono" onClick={() => toggleExpand(partido.id)}>{isExpanded ? <FiChevronUp /> : <FiChevronDown />}</span>
+                  </div>
+
+                  <AnimatePresence initial={false}>
+                    {isExpanded && (
+                      <motion.div key="contenido" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.3 }} className="contenido">
+
+                        <p className="detalle-chico">🎯 Faltan: <strong>{faltan > 0 ? faltan : 0}</strong> jugadores para completar</p>
+
+                        <p className="subtitulo">✅ Aceptaron:</p>
+                        {partido.usuariosAceptaron?.length > 0 ? (
+                          partido.usuariosAceptaron.map((usuario: any) => {
+                            const estado = usuario.estado?.trim().toLowerCase();
+                            return (
+                              <div key={usuario.id} className="jugador">
+                                <div className="info" onClick={() => navigate(`/perfil/${usuario.id}`)} style={{ cursor: 'pointer' }}>
+                                  <div className="inicial">{usuario.nombre?.charAt(0)}</div>
+                                  <div>
+                                    <p className="nombre-jugador">{usuario.nombre?.trim()}</p>
+                                    {estado === 'confirmado' && <p className="confirmado">✔ Confirmado</p>}
+                                  </div>
+                                </div>
+                                <button onClick={() => rechazarJugador(usuario.id, partido.id)} className="boton-eliminar">🗑️</button>
+                              </div>
+                            );
+                          })
+                        ) : (
+                          <p className="mensaje">Ninguno aún</p>
+                        )}
+
+                        <p className="subtitulo">⏳ Pendientes:</p>
+                        {partido.usuariosPendientes?.length > 0 ? (
+                          partido.usuariosPendientes.map((usuario: any) => (
+                            <div key={usuario.id} className="jugador">
+                              <div className="info" onClick={() => navigate(`/perfil/${usuario.id}`)} style={{ cursor: 'pointer' }}>
+                                <div className="inicial">{usuario.nombre?.charAt(0)}</div>
+                                <div>
+                                  <p className="nombre-jugador">{usuario.nombre?.trim()}</p>
+                                  <p className="pendiente">⏳ Pendiente</p>
+                                </div>
+                              </div>
+                              <button onClick={() => rechazarJugador(usuario.id, partido.id)} className="boton-eliminar">🗑️</button>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="mensaje">No hay jugadores pendientes aún</p>
+                        )}
+
+                        <div className="acciones">
+                          <button onClick={() => solicitarNuevoJugador(partido.id)} className="boton-accion" disabled={botonBloqueado[partido.id]}>
+                            ➕ Pedir nuevo jugador
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              );
+            })
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AceptacionesPage;
