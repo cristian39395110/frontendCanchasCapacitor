@@ -1,0 +1,73 @@
+.crear-cancha-container {
+  max-width: 500px;
+  margin: 90px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+}
+
+.crear-cancha-container h2 {
+  text-align: center;
+  font-size: 1.6rem;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.crear-cancha-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.crear-cancha-form input,
+.crear-cancha-form button {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.crear-cancha-form button {
+  background-color: green;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.preview img {
+  width: 100%;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.map-container {
+  width: 100%;
+  height: 300px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+@media (max-width: 480px) {
+  .crear-cancha-container {
+    padding: 16px;
+    margin: 10px;
+  }
+
+  .crear-cancha-container h2 {
+    font-size: 1.3rem;
+  }
+
+  .crear-cancha-form input,
+  .crear-cancha-form button {
+    font-size: 0.95rem;
+    padding: 10px;
+  }
+
+  .map-container {
+    height: 250px;
+  }
+}

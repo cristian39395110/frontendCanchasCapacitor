@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1037101183849",
+    "project_id": "appcanchas-f405b",
+    "storage_bucket": "appcanchas-f405b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1037101183849:android:35d9c0a324ea5c9c3243f8",
+        "android_client_info": {
+          "package_name": "com.canchas.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAriZoV5u1Rq1D7Hb1fc-DsMOjvPCKzmvo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

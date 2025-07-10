@@ -1,0 +1,125 @@
+.bottom-navbar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 60px;
+  background-color: #1F2937;
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 0;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 12px); /* 💪 Espacio seguro */
+  z-index: 1000;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+
+
+.bottom-button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.bottom-button span {
+  font-size: 0.75rem;
+  margin-top: 2px;
+}
+
+.badge-bottom {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  background-color: red;
+  color: white;
+  font-size: 0.65rem;
+  border-radius: 50%;
+  padding: 2px 6px;
+}
+.modal-solicitudes {
+  position: fixed;
+  bottom: 70px;
+  right: 10px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* 👈 Sombra más pro */
+  z-index: 1000;
+  width: 300px;
+  max-height: 350px;
+  overflow-y: auto;
+  font-family: Arial, sans-serif;
+}
+
+.modal-solicitudes h4 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  text-align: center;
+  font-weight: bold;
+  color: #111;
+}
+
+.solicitud-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  background: #f9f9f9;
+  padding: 10px;
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+.solicitud-item:hover {
+  background: #f1f1f1;
+}
+
+.foto-solicitud {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #ccc;
+}
+
+.nombre-solicitante {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.acciones-mini {
+  display: flex;
+  gap: 6px;
+}
+
+.acciones-mini button {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.acciones-mini button:hover {
+  transform: scale(1.2);
+}
+.acciones-mini button:first-child {
+  color: green;
+}
+
+.acciones-mini button:last-child {
+  color: red;
+}
+@media (max-width: 320px) {
+  .modal-solicitudes {
+    width: 90vw;
+    right: 5vw;
+  }
+}
+

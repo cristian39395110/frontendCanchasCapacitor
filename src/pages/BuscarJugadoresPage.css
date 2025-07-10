@@ -1,0 +1,33 @@
+.buscar-jugadores-container {
+  padding: 20px;
+  max-width: 480px;
+  margin: 80px auto 40px auto;
+}
+
+@media screen and (max-width: 480px) {
+  .buscar-jugadores-container {
+    margin-top: 100px;
+    padding: 12px;
+  }
+
+  .buscar-jugadores-container h2,
+  .buscar-jugadores-container h3 {
+    font-size: 20px;
+    text-align: center;
+  }
+
+  input,
+  select {
+    font-size: 16px;
+    padding: 10px;
+  }
+
+  button {
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  .grid-deportes {
+    grid-template-columns: 1fr 1fr;
+  }
+}
