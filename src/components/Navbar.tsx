@@ -23,6 +23,8 @@ const Navbar: React.FC = () => {
   const usuarioId = localStorage.getItem('usuarioId');
   const [aceptaciones] = useState(0);
   const [esAdmin, setEsAdmin] = useState(false);
+  const [esId11 , setEsId11] = useState(false);
+
 
 
   useEffect(() => {
@@ -32,13 +34,17 @@ const Navbar: React.FC = () => {
 if (token) {
   try {
     const decoded = JSON.parse(atob(token.split('.')[1]));
-    if (decoded.id === 11) { // Cambia 1 por tu ID si es otro
-      setEsAdmin(true);
+    if (decoded.id === 11) {
+      setEsId11(true); // ✅ para el botón "Nuevo"
+    }
+    if (decoded.esAdmin === true) {
+      setEsAdmin(true); // ✅ para mostrar "Cargar Cancha"
     }
   } catch (err) {
     console.error('❌ Error al leer token', err);
   }
 }
+
     
 
    fetch(`${API_URL}/api/notificaciones/${usuarioId}`)
@@ -155,7 +161,9 @@ if (token) {
       </div>
 
       <div className="navbar-buttons">
-  <IconButton onClick={() => navigate('/juegonuevo')} icon={<FaPlus />} label="Nuevo" />
+  {esId11 && (
+    <IconButton onClick={() => navigate('/juegonuevo')} icon={<FaPlus />} label="Nuevo" />
+  )}
   <IconButton onClick={() => navigate('/buscar-jugadores')} icon={<FaSearch />} label="Buscar" />
   <IconButton onClick={() => navigate('/chat')} icon={<FaComments />} label="Chat" />
   <IconButton onClick={() => navigate('/aceptaciones')} icon={<FaFutbol  />} label="Aceptaciones" />
@@ -175,8 +183,8 @@ if (token) {
 
 {mostrarMenu && (
   <div className="menu">
-    <div className="menu-item" onClick={() => navigate('/perfil/cambiar-correo')}>
-      <FaAt /> Cambiar correo
+    <div className="menu-item" onClick={() => navigate('/EditarPerfilPage')}>
+      <FaAt /> Modificar perfil
     </div>
     <div className="menu-item" onClick={() => navigate('/perfil/cambiar-telefono')}>
       <FaUserEdit /> Cambiar teléfono

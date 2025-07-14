@@ -10,6 +10,10 @@ const MuroGeneralPage: React.FC = () => {
   const usuarioId = localStorage.getItem('usuarioId');
   const [nuevaPublicacion, setNuevaPublicacion] = useState('');
   const [fotoPublicacion, setFotoPublicacion] = useState<File | null>(null);
+  const [mostrarComentarios, setMostrarComentarios] = useState<{ [key: number]: boolean }>({});
+  const [videoAgrandado, setVideoAgrandado] = useState<string | null>(null);
+
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -130,9 +134,18 @@ const MuroGeneralPage: React.FC = () => {
                   className="media-publicacion"
                 />
               )}
-              {publi.foto && publi.foto.match(/\.mp4$/i) && (
-                <video controls className="media-publicacion" src={publi.foto} />
-              )}
+  {publi.foto && publi.foto.match(/\.mp4$/i) && (
+  <div>
+    <video
+      controls
+      playsInline
+      preload="metadata"
+      className="media-publicacion"
+      src={publi.foto}
+      onClick={() => setVideoAgrandado(publi.foto)}
+    />
+  </div>
+)}
 
               <div className="acciones-publicacion">
                 <button
@@ -147,13 +160,28 @@ const MuroGeneralPage: React.FC = () => {
                 <span>{publi.Likes?.length || 0} me gusta</span>
               </div>
 
-              <div className="comentarios">
-                {publi.Comentarios?.map((c: any, idx: number) => (
-                  <div key={idx} className="comentario">
-                    <strong>{c.Usuario?.nombre || 'Anon'}:</strong> {c.contenido}
-                  </div>
-                ))}
-              </div>
+              <button
+  onClick={() =>
+    setMostrarComentarios((prev) => ({
+      ...prev,
+      [publi.id]: !prev[publi.id],
+    }))
+  }
+  className="toggle-comentarios"
+>
+  {mostrarComentarios[publi.id] ? 'Ocultar comentarios' : 'Ver comentarios'}
+</button>
+
+{mostrarComentarios[publi.id] && (
+  <div className="comentarios">
+    {publi.Comentarios?.map((c: any, idx: number) => (
+      <div key={idx} className="comentario">
+        <strong>{c.Usuario?.nombre || 'Anon'}:</strong> {c.contenido}
+      </div>
+    ))}
+  </div>
+)}
+
 
               <div className="formulario-comentario">
                 <input
@@ -169,10 +197,29 @@ const MuroGeneralPage: React.FC = () => {
                 />
                 <button onClick={() => comentar(publi.id)}>Comentar</button>
               </div>
+         
+
             </div>
           ))
         )}
       </div>
+
+      {videoAgrandado && (
+  <div className="video-overlay" onClick={() => setVideoAgrandado(null)}>
+    <video
+      src={videoAgrandado}
+      controls
+      autoPlay
+      className="video-ampliado-modal"
+      onClick={(e) => e.stopPropagation()}
+    />
+    <button className="boton-cerrar-video" onClick={() => setVideoAgrandado(null)}>
+      ❌
+    </button>
+  </div>
+)}
+
+        
     </>
   );
 };

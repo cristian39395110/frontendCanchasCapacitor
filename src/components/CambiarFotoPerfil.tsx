@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { API_URL } from '../config';
 import './CambiarFotoPerfil.css';
+import { Toast } from '@capacitor/toast';
 
 interface Props {
   usuarioId: string;
@@ -12,50 +13,61 @@ const CambiarFotoPerfil: React.FC<Props> = ({ usuarioId, fotoActual, onFotoActua
   const [nuevaFoto, setNuevaFoto] = useState<File | null>(null);
   const [, setSubiendo] = useState(false);
 
+  const mostrarToast = async (mensaje: string) => {
+    await Toast.show({ text: mensaje });
+  };
+
   const handleActualizar = async () => {
     if (!nuevaFoto) return;
     setSubiendo(true);
+
+    await mostrarToast('📤 Subiendo foto...');
+
     const formData = new FormData();
     formData.append('foto', nuevaFoto);
 
     try {
       const res = await fetch(`${API_URL}/api/usuarios/${usuarioId}/foto`, {
         method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
         body: formData,
       });
 
       const data = await res.json();
       if (res.ok) {
         onFotoActualizada(data.fotoPerfil);
-        alert('✅ Foto actualizada');
+        await mostrarToast('✅ Foto actualizada');
       } else {
-        alert('❌ Error al actualizar la foto');
+        await mostrarToast('❌ Error al actualizar la foto');
       }
     } catch (err) {
       console.error(err);
-      alert('❌ Error inesperado');
+      await mostrarToast('❌ Error inesperado');
     } finally {
       setSubiendo(false);
     }
   };
 
   const handleEliminar = async () => {
-    if (!window.confirm('¿Estás seguro de eliminar tu foto de perfil?')) return;
-
     try {
       const res = await fetch(`${API_URL}/api/usuarios/${usuarioId}/foto`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
       });
 
       if (res.ok) {
         onFotoActualizada(null);
-        alert('✅ Foto eliminada');
+        await mostrarToast('✅ Foto eliminada');
       } else {
-        alert('❌ Error al eliminar la foto');
+        await mostrarToast('❌ Error al eliminar la foto');
       }
     } catch (err) {
       console.error(err);
-      alert('❌ Error inesperado');
+      await mostrarToast('❌ Error inesperado');
     }
   };
 
@@ -63,7 +75,7 @@ const CambiarFotoPerfil: React.FC<Props> = ({ usuarioId, fotoActual, onFotoActua
     const file = e.target.files?.[0];
     if (file) {
       setNuevaFoto(file);
-      await handleActualizar(); // se actualiza automáticamente al elegir
+      await handleActualizar();
     }
   };
 

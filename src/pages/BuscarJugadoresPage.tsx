@@ -40,6 +40,8 @@ const BuscarJugadoresPage: React.FC = () => {
         const { coords } = await Geolocation.getCurrentPosition();
         setLatitud(coords.latitude);
         setLongitud(coords.longitude);
+        setUbicacionManual(false);
+
       } catch (error) {
         console.error('❌ No se pudo obtener la ubicación del dispositivo', error);
       }
@@ -87,7 +89,8 @@ const BuscarJugadoresPage: React.FC = () => {
       latitud,
       longitud,
       canchaId: canchaSeleccionada?.id || null,
-      canchaNombreManual: canchaManual || null,
+canchaNombreManual: canchaSeleccionada?.nombre || canchaManual || null,
+
       sexo,
       ubicacionManual,
       rangoEdad,
@@ -169,18 +172,20 @@ const BuscarJugadoresPage: React.FC = () => {
 
             <label>Seleccionar Cancha</label>
             <input
-              list="canchas-list"
-              value={canchaSeleccionada?.nombre || canchaManual}
-              onChange={(e) => {
-                const seleccionada = canchas.find(c => c.nombre.toLowerCase() === e.target.value.toLowerCase());
-                if (seleccionada) {
-                  setCanchaSeleccionada(seleccionada);
-                  setCanchaManual('');
-                } else {
-                  setCanchaSeleccionada(null);
-                  setCanchaManual(e.target.value);
-                }
-              }}
+  list="canchas-list"
+  value={canchaManual}
+  onChange={(e) => {
+    const valor = e.target.value;
+    setCanchaManual(valor);
+
+    const seleccionada = canchas.find(c => c.nombre.toLowerCase() === valor.toLowerCase());
+    if (seleccionada) {
+      setCanchaSeleccionada(seleccionada);
+    } else {
+      setCanchaSeleccionada(null);
+    }
+  }}
+
               placeholder="Escribí o seleccioná una cancha"
               style={{ width: '100%', marginBottom: '15px' }}
             />
