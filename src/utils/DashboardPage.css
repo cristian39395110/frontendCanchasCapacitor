@@ -182,6 +182,81 @@ body, html {
   background: #ddd;
   color: #333;
 }
+@media (prefers-color-scheme: dark) {
+  body, html {
+    background-color: #121212;
+    color: #ffffff;
+  }
+
+  .dashboard-container h2 {
+    color: #f1f1f1;
+  }
+
+  .suspension-alert {
+    background-color: #c62828;
+    color: white;
+  }
+
+  .game-card {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.05);
+  }
+
+  .game-card:hover {
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+  }
+
+  .game-card-title {
+    color: #ffffff;
+  }
+
+  .btn-inscribir {
+    background-color: #0d6efd;
+    color: white;
+  }
+
+  .btn-inscribir:hover {
+    background-color: #0a58ca;
+  }
+
+  .btn-desuscribir {
+    background-color: #dc3545;
+    color: white;
+  }
+
+  .btn-desuscribir:hover {
+    background-color: #b02a37;
+  }
+
+  .game-card-wrapper.inscripto .game-card {
+    background-color: #1b2b1b;
+    border: 2px solid #28a745;
+  }
+
+  .modal-content {
+    background-color: #2a2a2a;
+    color: #fff;
+  }
+
+  .modal-content select {
+    background-color: #1e1e1e;
+    color: #fff;
+    border: 1px solid #555;
+  }
+
+  .modal-content button:last-of-type {
+    background: #444;
+    color: #fff;
+  }
+
+  .search-input {
+    background-color: #1e1e1e;
+    color: white;
+    border: 1px solid #555;
+  }
+}
+
 
 @keyframes fadeIn {
   from { transform: scale(0.95); opacity: 0; }

@@ -99,3 +99,38 @@
     padding: 8px 10px;
   }
 }
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #121212;
+    color: #ffffff;
+  }
+
+  .canchas-container {
+    background-color: #121212;
+    color: #ffffff;
+  }
+
+  .cancha-card {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.08);
+  }
+
+  .cancha-info h3,
+  .cancha-info p {
+    color: #eeeeee;
+  }
+
+  .cancha-info button {
+    background-color: #128c7e;
+    color: white;
+  }
+
+  .cancha-info button:hover {
+    background-color: #0e6f62;
+  }
+
+  iframe {
+    border: none;
+  }
+}

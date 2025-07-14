@@ -107,3 +107,13 @@
     gap: 10px;
   }
 }
+@media (prefers-color-scheme: dark) {
+  .card {
+    background-color: #1e1e1e !important;
+    color: #ffffff !important;
+  }
+
+  .card * {
+    color: #ffffff !important;
+  }
+}

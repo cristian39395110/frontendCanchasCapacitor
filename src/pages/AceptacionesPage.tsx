@@ -16,6 +16,16 @@ const AceptacionesPage: React.FC = () => {
   const [cantidadesEditadas, setCantidadesEditadas] = useState<{ [key: number]: number }>({});
   const usuarioId = localStorage.getItem('usuarioId') ?? '';
   const navigate = useNavigate();
+  const formatearFechaHora = (fecha: string) => {
+  const fechaCompleta = new Date(`${fecha}`);
+  return fechaCompleta.toLocaleString('es-AR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour12: false
+  });
+};
+
 
   useEffect(() => {
     refresh();
@@ -107,7 +117,10 @@ const AceptacionesPage: React.FC = () => {
                       <p className="detalle">📍 <strong>Cancha:</strong> {partido.canchaNombreManual || partido.lugar}</p>
 <p className="detalle">🌎 <strong>Localidad:</strong> {partido.localidad}</p>
 <p className="detalle">🚻 <strong>Sexo:</strong> {partido.sexo}</p>
-<p className="detalle">🎂 <strong>Edad:</strong> {partido.rangoEdad}</p>
+<p className="detalle">
+  🎂 <strong>Edad:</strong> {partido.rangoEdad ? partido.rangoEdad : 'Sin restricción'}
+</p>
+
 {partido.latitud && partido.longitud && (
   <a
     href={`https://www.google.com/maps?q=${partido.latitud},${partido.longitud}`}
@@ -119,7 +132,7 @@ const AceptacionesPage: React.FC = () => {
   </a>
 )}
 
-                      <p className="detalle">📅 <strong>Fecha:</strong> {partido.fecha} | ⏰ <strong>Hora:</strong> {partido.hora}</p>
+                      <p className="detalle">  📅 <strong>Fecha:</strong> {formatearFechaHora(partido.fecha)} | ⏰ <strong>Hora:</strong> {partido.hora}</p>
                       <div className="barra">
                         <div className="progreso" style={{ width: `${porcentaje}%` }}></div>
                       </div>

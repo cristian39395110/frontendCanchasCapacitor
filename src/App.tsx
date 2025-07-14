@@ -21,6 +21,8 @@ import CalificarJugadoresPage from './pages/CalificarJugadoresPage';
 import PerfilUsuarioPage from './pages/PerfilUsuarioPage';
 import CanchasPage from './pages/CanchasPage';
 import CrearCanchaPage from './pages/CrearCanchaPage';
+import EditarPerfilPage from './pages/EditarPerfilPage';
+
 import RutaProtegidaSoloAdmin from './components/RutaProtegidaSoloAdmin'; // si está ahí, si no ajustá el path
 
 
@@ -151,6 +153,7 @@ function AppInner() {
           <Route path="/perfil" element={<PrivateRoute><PerfilUsuarioPage /></PrivateRoute>} />
 
         <Route path="/notificar-jugadores/:deporteId" element={<PrivateRoute><NotificarJugadoresPremiumPage /></PrivateRoute>} />
+         <Route path="/EditarPerfilPage" element={<PrivateRoute><EditarPerfilPage /></PrivateRoute>} />
         <Route path="/calificar-jugadores" element={<PrivateRoute><CalificarJugadoresPage /></PrivateRoute>} />
         <Route path="/calificar/:partidoId" element={<CalificarPage />} />
         <Route path="/aceptaciones" element={<PrivateRoute><AceptacionesPage /></PrivateRoute>} />

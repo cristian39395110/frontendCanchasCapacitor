@@ -2,11 +2,27 @@ import React, { useEffect, useState } from 'react';
 import { API_URL } from '../config';
 import Navbar from '../components/Navbar';
 import './Invitaciones.css';
+import { socket } from '../utils/socket';
+
+import { useNavigate } from 'react-router-dom';
+
 
 const Invitaciones: React.FC = () => {
   const [invitaciones, setInvitaciones] = useState<any[]>([]);
   const [filtroEstado, setFiltroEstado] = useState('pendiente');
   const usuarioId = localStorage.getItem('usuarioId');
+  const navigate = useNavigate();
+  const formatearFechaHora = (fecha: string) => {
+  const fechaCompleta = new Date(`${fecha}`);
+  return fechaCompleta.toLocaleString('es-AR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour12: false,
+  });
+};
+
+
 
   useEffect(() => {
     if (usuarioId) {
@@ -20,29 +36,34 @@ const Invitaciones: React.FC = () => {
     }
   }, [usuarioId, filtroEstado]);
 
-  const aceptarInvitacion = (partidoId: number) => {
-    fetch(`${API_URL}/api/solicitudes/aceptar`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ usuarioId: Number(usuarioId), partidoId })
-    })
-      .then(async (res) => {
-        if (!res.ok) {
-          const error = await res.json();
-          alert(error.error || '❌ Error al aceptar invitación');
-          return;
-        }
+const aceptarInvitacion = (partidoId: number) => {
+  fetch(`${API_URL}/api/solicitudes/aceptar`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ usuarioId: Number(usuarioId), partidoId })
+  })
+    .then(async (res) => {
+      if (!res.ok) {
+        const error = await res.json();
+        alert(error.error || '❌ Error al aceptar invitación');
+        return;
+      }
 
-        alert('✅ Invitación aceptada');
-        setInvitaciones(prev =>
-          prev.filter(inv => inv.id !== partidoId)
-        );
-      })
-      .catch(err => {
-        console.error(err);
-        alert('❌ Error al aceptar invitación');
-      });
-  };
+      // ✅ Unirse a la sala del partido
+      socket.emit('join-partido', partidoId);
+      console.log('📡 Unido a sala grupal del partido', partidoId);
+
+      alert('✅ Invitación aceptada');
+
+      // ✅ Redirigir al chat del partido
+      navigate(`/mensajes-partido/${partidoId}`);
+    })
+    .catch(err => {
+      console.error(err);
+      alert('❌ Error al aceptar invitación');
+    });
+};
+
 
   const rechazarInvitacion = (partidoId: number) => {
     fetch(`${API_URL}/api/solicitudes/rechazar/${partidoId}`, {
@@ -107,7 +128,8 @@ const Invitaciones: React.FC = () => {
                 <p><strong>🏙 Localidad:</strong> {inv.localidad || 'No especificada'}</p>
                 <p><strong>📍 Direccion:</strong> {inv.lugar}</p>
                 <p><strong>🏟 Cancha:</strong> {inv.nombreCancha}</p>
-                <p><strong>📅 Fecha:</strong> {inv.fecha}</p>
+                <p><strong>📅 Fecha:</strong> {formatearFechaHora(inv.fecha)}</p>
+
                 <p><strong>⏰ Hora:</strong> {inv.hora}</p>
                 <p><strong>👤 Organizador:</strong> {inv.organizador}</p>
                 <p><strong>🧍 Sexo:</strong> {inv.sexo === 'todos' ? 'Todos' : inv.sexo}</p>

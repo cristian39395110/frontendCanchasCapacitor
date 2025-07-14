@@ -140,7 +140,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               fontSize: '14px'
             }}
           >
-            ¿Olvidaste tu contraseñas?
+            ¿Olvidaste tu contraseña?
           </button>
         </p>
 
@@ -172,7 +172,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             <h3>Recuperar contraseña</h3>
             <input
               type="email"
-              placeholder="Tu correo electrónico"
+              placeholder="Tu correo electrónicooo"
               value={emailRecuperacion}
               onChange={(e) => setEmailRecuperacion(e.target.value)}
               required
