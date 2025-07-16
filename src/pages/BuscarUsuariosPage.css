@@ -74,6 +74,12 @@ input:checked + .slider:before {
   transform: translateX(20px);
 }
 
+.resultados-busqueda {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
 /* 🧍 Tarjetas de usuario estilo lista */
 .usuario-card {
   display: flex;
@@ -203,3 +209,19 @@ input:checked + .slider:before {
     height: 36px;
   }
 }
+
+@media (prefers-color-scheme: dark) {
+  .usuario-card {
+    background-color: #1e1e1e;
+  }
+
+  .usuario-card h4,
+  .usuario-card p {
+    color: #fff;
+  }
+
+  .acciones-usuario button:hover {
+    background-color: #333;
+  }
+}
+

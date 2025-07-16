@@ -22,7 +22,6 @@ import PerfilUsuarioPage from './pages/PerfilUsuarioPage';
 import CanchasPage from './pages/CanchasPage';
 import CrearCanchaPage from './pages/CrearCanchaPage';
 import EditarPerfilPage from './pages/EditarPerfilPage';
-
 import RutaProtegidaSoloAdmin from './components/RutaProtegidaSoloAdmin'; // si está ahí, si no ajustá el path
 
 
@@ -50,6 +49,7 @@ function AppInner() {
   const [usuarioId, setUsuarioId] = useState<string | null>(localStorage.getItem('usuarioId'));
   const [mensajesNoLeidos, setMensajesNoLeidos] = useState(0);
   const [invitaciones, setInvitaciones] = useState(0);
+  
 
   // ✅ Detectar cambios de ruta y sincronizar estado
   useEffect(() => {
@@ -136,7 +136,12 @@ function AppInner() {
 
   return (
     <>
+
+
+
       <Routes>
+            {/* 🔄 Actualizador de ubicación cada 10 minutos */}
+   
         <Route path="/login" element={<LoginPage />} />
         <Route path="/registro" element={<Registro />} />
 
