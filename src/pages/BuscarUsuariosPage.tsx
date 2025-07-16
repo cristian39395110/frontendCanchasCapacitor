@@ -127,6 +127,8 @@ const BuscarUsuariosPage: React.FC = () => {
   };
 
   const iniciarChat = (receptorId: number) => {
+    console.log("??????????????")
+     console.log(receptorId)
     navigate(`/chat/${receptorId}`);
   };
 
@@ -195,6 +197,7 @@ const BuscarUsuariosPage: React.FC = () => {
                     )}
 
                     {esAmigo ? (
+                     
                       <button onClick={() => iniciarChat(usuario.id)} title="Enviar mensaje">💬</button>
                     ) : (
                       <button disabled title="Solo puedes chatear con amigos">🔒</button>

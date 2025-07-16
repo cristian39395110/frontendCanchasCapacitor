@@ -56,7 +56,7 @@ const aceptarInvitacion = (partidoId: number) => {
       alert('✅ Invitación aceptada');
 
       // ✅ Redirigir al chat del partido
-      navigate(`/mensajes-partido/${partidoId}`);
+      navigate(`/chat/${partidoId}`);
     })
     .catch(err => {
       console.error(err);
