@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_URL } from '../config';
 import { useUbicacion } from '../hooks/useUbicacion';
+import { Device } from '@capacitor/device';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './Registro.css';
 
 function Registro() {
@@ -20,9 +23,14 @@ function Registro() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!coordenadas) return alert('Ubicación no disponible. Activa el GPS.');
+    if (!coordenadas) {
+      toast.error('📍 Ubicación no disponible. Activa el GPS.');
+      return;
+    }
 
     try {
+      const { identifier: deviceId } = await Device.getId();
+
       const formData = new FormData();
       formData.append('nombre', nombre);
       formData.append('telefono', telefono);
@@ -33,6 +41,8 @@ function Registro() {
       formData.append('longitud', String(coordenadas.lng));
       formData.append('sexo', sexo);
       formData.append('edad', edad);
+      formData.append('deviceId', deviceId);
+
       if (fotoPerfil) {
         formData.append('fotoPerfil', fotoPerfil);
       }
@@ -44,11 +54,19 @@ function Registro() {
       });
 
       setMostrarModal(true);
-    } catch (error) {
-      console.error(error);
-      alert('Error al registrar. Revisa los datos.');
-    }
-  };
+    } catch (error: any) {
+  console.error(error);
+  const mensaje = error?.response?.data?.error || 'Error al registrar. Revisa los datos.';
+
+  if (mensaje.includes('dispositivo')) {
+    toast.error('📱 Ya existe una cuenta creada desde este celular. Solo se permite una por dispositivo.');
+  } else if (mensaje.includes('email')) {
+    toast.error('📧 Ya existe una cuenta con ese email.');
+  } else {
+    toast.error(`❌ ${mensaje}`);
+  }
+}
+  }
 
   return (
     <div className="registro-container">
@@ -64,21 +82,29 @@ function Registro() {
           <input type="password" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)} required />
           <input type="text" placeholder="Localidad" value={localidad} onChange={(e) => setLocalidad(e.target.value)} required />
 
-        <select
-  value={sexo}
-  onChange={(e) => setSexo(e.target.value)}
-  required
->
-  <option value="" disabled hidden>Seleccionar sexo</option>
-  <option value="masculino">Masculino</option>
-  <option value="femenino">Femenino</option>
-</select>
-
+          <select value={sexo} onChange={(e) => setSexo(e.target.value)} required>
+            <option value="" disabled hidden>Seleccionar sexo</option>
+            <option value="masculino">Masculino</option>
+            <option value="femenino">Femenino</option>
+          </select>
 
           <input type="number" placeholder="Edad" value={edad} onChange={(e) => setEdad(e.target.value)} required />
+          <label style={{ marginTop: '10px', fontWeight: 'bold' }}>Foto de perfil:</label>
+<input
+  type="file"
+  accept="image/*"
+  onChange={(e) => setFotoPerfil(e.target.files?.[0] || null)}
+/>
+{fotoPerfil && (
+  <img
+    src={URL.createObjectURL(fotoPerfil)}
+    alt="Vista previa"
+    className="preview-image"
+    style={{ marginTop: '10px', borderRadius: '10px', maxHeight: '150px' }}
+  />
+)}
 
-          <input type="file" accept="image/*" onChange={(e) => setFotoPerfil(e.target.files?.[0] || null)} />
-          {fotoPerfil && <img src={URL.createObjectURL(fotoPerfil)} alt="Vista previa" className="preview-image" />}
+
           <button type="submit" disabled={cargando}>Registrarse</button>
         </form>
 
@@ -93,6 +119,8 @@ function Registro() {
           </div>
         </div>
       )}
+
+      <ToastContainer position="top-center" autoClose={4000} />
     </div>
   );
 }

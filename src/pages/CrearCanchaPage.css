@@ -71,3 +71,30 @@
     height: 250px;
   }
 }
+@media (prefers-color-scheme: dark) {
+  .crear-cancha-container {
+    background: #1e1e1e;
+    color: #f1f1f1;
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
+  }
+
+  .crear-cancha-form input,
+  .crear-cancha-form button {
+    background-color: #2a2a2a;
+    color: #f1f1f1;
+    border: 1px solid #555;
+  }
+
+  .crear-cancha-form button {
+    background-color: #2196f3;
+    color: white;
+  }
+
+    .crear-cancha-container h2 {
+    color: #ffffff; /* 👈 Color blanco para el título */
+  }
+
+  .map-container {
+    border-color: #555;
+  }
+}

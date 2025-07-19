@@ -19,6 +19,9 @@
     const [esPropioPerfil, setEsPropioPerfil] = useState(false);
     const [comentarioTexto, setComentarioTexto] = useState<{ [key: number]: string }>({});
     const [reseñas, setReseñas] = useState<any[]>([]);
+    const [mostrarModalReseñas, setMostrarModalReseñas] = useState(false);
+
+
 
     useEffect(() => {
       if (!usuarioId || !idPerfil) return;
@@ -198,37 +201,53 @@ if (fotoPublicacion && fotoPublicacion.type.startsWith('video/')) {
                 <p><strong>⭐ Promedio de Calificación:</strong> {promedio} / 5</p>
               )}
             </div>
+
+            <button
+  className="btn-ver-reseñas"
+  onClick={() => setMostrarModalReseñas(true)}
+>
+  📋 Ver Reseñas
+</button>
+
+
+{mostrarModalReseñas && (
+  <div className="modal-overlay" onClick={() => setMostrarModalReseñas(false)}>
+    <div className="modal-contenido" onClick={(e) => e.stopPropagation()}>
+      <button className="cerrar-modal" onClick={() => setMostrarModalReseñas(false)}>❌</button>
+      <h2>Reseñas del Usuario</h2>
+
+      {reseñas.length > 0 ? (
+        reseñas.map((r, index) => (
+  <React.Fragment key={index}>
+    <div className="reseña-item">
+      {r.Calificador?.fotoPerfil && (
+        <img src={r.Calificador.fotoPerfil} className="reseña-foto" />
+      )}
+      <div>
+        <p><strong>{r.Calificador?.nombre || 'Anon'}:</strong> {r.comentario || '(Sin comentario)'}</p>
+        <div className="estrella-row">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <span key={n} className={n <= r.puntaje ? 'estrella llena' : 'estrella'}>★</span>
+          ))}
+        </div>
+      </div>
+    </div>
+   {index < reseñas.length - 1 && <hr className="reseña-divider" />}
+  </React.Fragment>
+))
+
+      ) : (
+        <p>Este usuario aún no tiene reseñas.</p>
+      )}
+    </div>
+  </div>
+)}
+
           </div>
 
-          {reseñas.length > 0 && (
-            <div className="reseñas-box">
-              <h3>Reseñas</h3>
-              <ul className="reseñas-lista">
-                {reseñas.map((r, index) => (
-                  <li key={index} className="reseña-item">
-                    <div className="reseña-contenido">
-                      {r.Calificador?.fotoPerfil && (
-                        <img
-                          src={r.Calificador.fotoPerfil}
-                          alt="calificador"
-                          className="reseña-foto"
-                        />
-                      )}
-                      <div>
-                        <p><strong>{r.Calificador?.nombre || 'Anon'}:</strong> {r.comentario || '(Sin comentario)'}</p>
-                        <div className="estrella-row">
-                          {[1, 2, 3, 4, 5].map((n) => (
-                            <span key={n} className={n <= r.puntaje ? 'estrella llena' : 'estrella'}>★</span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
 
+
+          
           <div className="muro">
             {esPropioPerfil && (
               <>

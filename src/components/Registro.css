@@ -232,3 +232,24 @@ html, body {
     transform: scale(1);
   }
 }
+
+/* Forzar fondo blanco en modo oscuro */
+@media (prefers-color-scheme: dark) {
+  .registro-card,
+  .modal-content {
+    background-color: #fff !important;
+    color: #000 !important;
+  }
+
+  .registro-form input,
+  .registro-form select,
+  .registro-form input[type="file"],
+  .registro-form input[type="number"] {
+    background-color: #fff !important;
+    color: #000 !important;
+  }
+
+  .registro-container {
+    background-color: #111 !important; /* o un fondo neutro */
+  }
+}
