@@ -10,6 +10,23 @@
   max-width: 900px;
   margin: auto;
 }
+.input-cantidad {
+  padding: 8px 12px;
+  border: 2px solid #c7d2fe;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  background-color: #ffffff;
+  color: #1e3a8a;
+  outline: none;
+  width: 80px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.input-cantidad:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+}
 
 .titulo {
   text-align: center;
@@ -163,16 +180,27 @@
 .boton-accion {
   background-color: #4338ca;
   color: white;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
   border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .boton-accion:hover {
   background-color: #3730a3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
+
+.boton-accion:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
 .form-editar-cantidad {
   display: flex;
   flex-wrap: wrap;

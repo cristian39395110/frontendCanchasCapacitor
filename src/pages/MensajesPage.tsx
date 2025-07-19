@@ -47,6 +47,10 @@
       const usuarioSeleccionadoRef = useRef<Usuario | null>(null);
       const partidoSeleccionadoRef = useRef<number | null>(null);
       const tipoChatRef = useRef<'usuario' | 'partido' | null>(null);
+      const [usuariosConMensajes, setUsuariosConMensajes] = useState<number[]>([]);
+const [partidosConMensajes, setPartidosConMensajes] = useState<number[]>([]);
+
+
 
 
       const { usuarioId: usuarioIdUrl } = useParams(); // <- viene de la URL
@@ -65,13 +69,13 @@
     });
   };
 
-  useEffect(() => {
-  if (mensajesRef.current) {
-    mensajesRef.current.scrollIntoView({ behavior: 'smooth' });
-  }
+useEffect(() => {
+  setTimeout(() => {
+    if (mensajesRef.current) {
+      mensajesRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, 100); // 🔁 pequeño delay para asegurarte de que el DOM ya se pintó
 }, [mensajes]);
-
-
   
   useEffect(() => {
     tipoChatRef.current = tipoChat;
@@ -106,10 +110,13 @@
 
      useEffect(() => {
   if (!socket || !usuarioId) return;
-
+const salaPrivada = `usuario-${usuarioId}`;
   const handleConnect = () => {
-    socket.emit('join', usuarioId);
-    console.log('🟢 Emitido join desde frontend');
+    
+  
+
+    socket.emit('join', salaPrivada);
+    console.log('🟢 Emitido join desde frontend a sala', salaPrivada);
   };
 
   socket.on('connect', handleConnect);
@@ -121,8 +128,8 @@
 
   return () => {
     socket.off('connect', handleConnect);
-    socket.emit('leave', usuarioId);
-    console.log('🔴 Emitido leave desde frontend');
+    socket.emit('leave', salaPrivada);
+    console.log('🔴 Emitido leave desde frontend de sala', salaPrivada);
   };
 }, [usuarioId]);
 
@@ -184,6 +191,8 @@
 
       const seleccionarUsuario = async (usuario: Usuario) => {
         usuarioSeleccionadoRef.current = usuario;
+        setUsuariosConMensajes(prev => prev.filter(id => id !== usuario.id));
+
 
         setTipoChat('usuario');
         setUsuarioSeleccionado(usuario);
@@ -195,6 +204,8 @@
       };
 
     const seleccionarPartido = async (partidoId: number, nombre: string) => {
+      setPartidosConMensajes(prev => prev.filter(id => id !== partidoId));
+
     try {
       setTipoChat('partido');
       setUsuarioSeleccionado({ id: 0, nombre });
@@ -315,6 +326,10 @@ const recibirMensaje = (nuevo: Mensaje) => {
         return [...prev, nuevo];
       });
     } else {
+      setUsuariosConMensajes(prev => {
+        if (!prev.includes(emisor)) return [...prev, emisor];
+        return prev;
+      });
       console.log('📩 Mensaje recibido pero NO es del chat actual', nuevo);
     }
   }, 50);
@@ -325,14 +340,27 @@ const recibirMensaje = (nuevo: Mensaje) => {
 
 
   const recibirMensajePartido = (nuevo: any) => {
-    if (nuevo.partidoId === partidoSeleccionadoRef.current) {
-      setMensajes(prev => {
-        const yaExiste = prev.some(m => m.id === nuevo.id || (m._manual && m.mensaje === nuevo.mensaje));
-        if (yaExiste) return prev;
-        return [...prev, { ...nuevo }]; // 👈 mantenemos msg.esMio
-      });
-    }
-  };
+  const esChatActual = 
+    tipoChatRef.current === 'partido' &&
+    nuevo.partidoId === partidoSeleccionadoRef.current;
+
+  if (esChatActual) {
+    setMensajes(prev => {
+      const yaExiste = prev.some(m =>
+        m.id === nuevo.id || (m._manual && (m.mensaje === nuevo.mensaje || m.frontendId === nuevo.frontendId))
+      );
+      if (yaExiste) return prev;
+      return [...prev, { ...nuevo }];
+    });
+  } else {
+    // 👇 SOLO pintamos en azul el partido si no es el chat actual
+    setPartidosConMensajes(prev => {
+      if (!prev.includes(nuevo.partidoId)) return [...prev, nuevo.partidoId];
+      return prev;
+    });
+    console.log('📩 Mensaje de partido recibido pero NO es del chat actual', nuevo);
+  }
+};
 
 
     socket.on('mensajeNuevo', recibirMensaje);
@@ -360,8 +388,14 @@ const recibirMensaje = (nuevo: Mensaje) => {
 
               <div style={{ marginBottom: '10px' }}>🔵 Chats individuales</div>
               {usuarios.filter(u => u.nombre.toLowerCase().includes(filtroNombre.toLowerCase())).map(u => (
-                <div key={u.id} className={`user-chat ${usuarioSeleccionado?.id === u.id ? 'selected' : ''}`}
-                  onClick={() => seleccionarUsuario(u)}>
+               <div
+  key={u.id}
+  className={`user-chat 
+    ${usuarioSeleccionado?.id === u.id ? 'selected' : ''} 
+    ${usuariosConMensajes.includes(u.id) ? 'nuevo-mensaje' : ''}`}
+  onClick={() => seleccionarUsuario(u)}
+>
+
                   <span>{u.nombre}</span>
                   {u.tieneNoLeidos && <span className="unread-icon">📩</span>}
                 </div>
@@ -369,8 +403,14 @@ const recibirMensaje = (nuevo: Mensaje) => {
 
               <div style={{ marginTop: '15px' }}>⚽ Chats de partidos</div>
               {partidos.map(p => (
-                <div key={p.id} className={`user-chat ${partidoSeleccionadoId === p.id ? 'selected' : ''}`}
-                  onClick={() => seleccionarPartido(p.id, p.nombre)}>
+              <div
+  key={p.id}
+  className={`user-chat 
+    ${partidoSeleccionadoId === p.id ? 'selected' : ''} 
+    ${partidosConMensajes.includes(p.id) ? 'nuevo-mensaje' : ''}`}
+  onClick={() => seleccionarPartido(p.id, p.nombre)}
+>
+
                   <span>{p.nombre}</span>
                 </div>
               ))}
@@ -382,9 +422,10 @@ const recibirMensaje = (nuevo: Mensaje) => {
                   <div className="chat-header">{usuarioSeleccionado.nombre}</div>
                   <div className="chat-messages" ref={mensajesRef}>
      {mensajes.map((msg, i) => {
-  const esMio = msg.esMio || (tipoChatRef.current === 'usuario'
-    ? msg.emisorId === Number(usuarioId)
-    : msg.usuarioId === Number(usuarioId));
+ const esMio = tipoChatRef.current === 'usuario'
+  ? msg.emisorId === Number(usuarioId)
+  : msg.usuarioId === Number(usuarioId);
+
 
   const contenido = tipoChat === 'usuario' ? msg.contenido : msg.mensaje;
 

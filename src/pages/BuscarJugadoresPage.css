@@ -3,6 +3,95 @@
   max-width: 480px;
   margin: 80px auto 40px auto;
 }
+/* Estilo uniforme para inputs tipo checkbox */
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 15px;
+  background-color: white;
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  font-size: 16px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.checkbox-group label:hover {
+  background-color: #f0f0f0;
+}
+
+.checkbox-group input[type="checkbox"] {
+  accent-color: #0ea5e9; /* color celeste como el botón */
+  transform: scale(1.3);
+  cursor: pointer;
+}
+
+/* 🌙 Dark mode */
+@media (prefers-color-scheme: dark) {
+  .checkbox-group {
+    background-color: #1e1e1e;
+    border-color: #444;
+  }
+
+  .checkbox-group label {
+    background-color: #2a2a2a;
+    border-color: #444;
+    color: #f1f1f1;
+  }
+
+  .checkbox-group label:hover {
+    background-color: #333;
+  }
+
+  .checkbox-group input[type="checkbox"] {
+    accent-color: #0ea5e9;
+  }
+}
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-premium {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  max-width: 380px;
+  width: 90%;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.cerrar-modal {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
 
 @media screen and (max-width: 480px) {
   .buscar-jugadores-container {

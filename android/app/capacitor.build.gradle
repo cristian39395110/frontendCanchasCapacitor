@@ -11,9 +11,12 @@ apply from: "../capacitor-cordova-android-plugins/cordova.variables.gradle"
 dependencies {
     implementation project(':capacitor-community-background-geolocation')
     implementation project(':capacitor-community-fcm')
+    implementation project(':capacitor-device')
     implementation project(':capacitor-geolocation')
+    implementation project(':capacitor-preferences')
     implementation project(':capacitor-push-notifications')
     implementation project(':capacitor-toast')
+    implementation project(':capacitor-native-biometric')
 
 }
 apply from: "../../node_modules/cordova-plugin-fingerprint-aio/src/android/build.gradle"

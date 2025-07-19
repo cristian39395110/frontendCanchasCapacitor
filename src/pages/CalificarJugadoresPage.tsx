@@ -52,6 +52,15 @@ const CalificarJugadoresPage: React.FC = () => {
     seleccionarPartido(seleccionado); // recargar
   };
 
+  const formatearFecha = (fechaISO: string) => {
+  const fecha = new Date(fechaISO);
+  const dia = String(fecha.getDate()).padStart(2, '0');
+  const mes = String(fecha.getMonth() + 1).padStart(2, '0'); // Los meses van de 0 a 11
+  const anio = fecha.getFullYear();
+  return `${dia}/${mes}/${anio}`;
+};
+
+
   return (
     <>
       <Navbar />
@@ -64,7 +73,8 @@ const CalificarJugadoresPage: React.FC = () => {
             <ul className="partido-lista">
               {partidos.map(p => (
                 <li key={p.id} className="partido-item">
-                  <span>{p.nombre} - {p.fecha}</span>
+                 <span>{p.nombre} - {formatearFecha(p.fecha)}</span>
+
                   <button className="boton" onClick={() => seleccionarPartido(p)}>Seleccionar</button>
                 </li>
               ))}

@@ -8,9 +8,9 @@ import './Navbar.css';
 
 import {
   FaFutbol, FaPlus, FaSearch, FaComments, FaBell, FaBellSlash,
-  FaSignOutAlt, FaBars, FaEnvelopeOpenText, FaKey, FaAt, FaUserEdit,FaThLarge,FaBullhorn 
+  FaSignOutAlt, FaBars, FaEnvelopeOpenText, FaKey, FaAt,FaThLarge,FaBullhorn 
 } from 'react-icons/fa';
-
+import { Preferences } from '@capacitor/preferences';
 const socket = io(API_URL);
 
 const Navbar: React.FC = () => {
@@ -137,11 +137,27 @@ if (token) {
       });
   };
 
-  const handleLogout = () => {
+
+
+const handleLogout = async () => {
+  try {
+    // Borra datos persistentes en Android (Preferences)
+    await Preferences.remove({ key: 'token' });
+    await Preferences.remove({ key: 'usuarioId' });
+    await Preferences.remove({ key: 'esPremium' });
+
+    // Borra datos temporales en WebView
     localStorage.removeItem('token');
     localStorage.removeItem('usuarioId');
+    localStorage.removeItem('esPremium');
+
+    // Navega al login (ya tenés navigate declarado arriba del componente)
     navigate('/login');
-  };
+  } catch (error) {
+    console.error('❌ Error al cerrar sesión:', error);
+  }
+};
+
 
  const abrirWhatsApp = () => {
   const numero = '5492664840533'; // ← Reemplazá con tu número con código país (sin + ni espacios)
@@ -186,12 +202,8 @@ if (token) {
     <div className="menu-item" onClick={() => navigate('/EditarPerfilPage')}>
       <FaAt /> Modificar perfil
     </div>
-    <div className="menu-item" onClick={() => navigate('/perfil/cambiar-telefono')}>
-      <FaUserEdit /> Cambiar teléfono
-    </div>
-    <div className="menu-item" onClick={() => navigate('/perfil/cambiar-password')}>
-      <FaKey /> Cambiar contraseña
-    </div>
+   
+    
     <div className="menu-item" onClick={() => navigate('/perfil')}>
       <FaKey /> Perfil
     </div>

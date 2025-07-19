@@ -115,22 +115,24 @@ const AceptacionesPage: React.FC = () => {
                   <div className="cabecera">
                     <div>
                       <p className="detalle">📍 <strong>Cancha:</strong> {partido.canchaNombreManual || partido.lugar}</p>
-<p className="detalle">🌎 <strong>Localidad:</strong> {partido.localidad}</p>
-<p className="detalle">🚻 <strong>Sexo:</strong> {partido.sexo}</p>
-<p className="detalle">
-  🎂 <strong>Edad:</strong> {partido.rangoEdad ? partido.rangoEdad : 'Sin restricción'}
-</p>
+                      <p className="detalle">📫 <strong>Dirección:</strong> {partido.lugar || 'No especificada'}</p>
 
-{partido.latitud && partido.longitud && (
-  <a
-    href={`https://www.google.com/maps?q=${partido.latitud},${partido.longitud}`}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="enlace-mapa"
-  >
-    🧭 Cómo llegar
-  </a>
-)}
+                      <p className="detalle">🌎 <strong>Localidad:</strong> {partido.localidad}</p>
+                      <p className="detalle">🚻 <strong>Sexo:</strong> {partido.sexo}</p>
+                      <p className="detalle">
+                        🎂 <strong>Edad:</strong> {partido.rangoEdad ? partido.rangoEdad : 'Sin restricción'}
+                      </p>
+
+                      {partido.latitud && partido.longitud && (
+                        <a
+                          href={`https://www.google.com/maps?q=${partido.latitud},${partido.longitud}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="enlace-mapa"
+                        >
+                          🧭 Cómo llegar
+                        </a>
+                      )}
 
                       <p className="detalle">  📅 <strong>Fecha:</strong> {formatearFechaHora(partido.fecha)} | ⏰ <strong>Hora:</strong> {partido.hora}</p>
                       <div className="barra">
