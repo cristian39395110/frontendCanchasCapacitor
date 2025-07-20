@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState ,useRef} from 'react';
 import type { JSX } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_URL } from '../config';
 import { suscribirseANotificaciones, desuscribirseANotificaciones } from '../utils/notificaciones';
 import { io } from 'socket.io-client';
 import './Navbar.css';
+
+
 
 import {
   FaFutbol, FaPlus, FaSearch, FaComments, FaBell, FaBellSlash,
@@ -24,6 +26,10 @@ const Navbar: React.FC = () => {
   const [aceptaciones] = useState(0);
   const [esAdmin, setEsAdmin] = useState(false);
   const [esId11 , setEsId11] = useState(false);
+  const [mostrarModalPublicidad, setMostrarModalPublicidad] = useState(false);
+
+  
+
 
 
 
@@ -159,15 +165,28 @@ const handleLogout = async () => {
 };
 
 
- const abrirWhatsApp = () => {
-  const numero = '5492664840533'; // ← Reemplazá con tu número con código país (sin + ni espacios)
-  const mensaje = encodeURIComponent('Hola! Quiero publicitar mi cancha en la app 🏟️📲');
-  const url = `https://wa.me/${numero}?text=${mensaje}`;
-  window.open(url, '_blank');
-};
+
+const menuRef = useRef<HTMLDivElement | null>(null);
+
+useEffect(() => {
+  const handleClickOutside = (event: MouseEvent) => {
+    if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      setMostrarMenu(false);
+    }
+  };
+
+  if (mostrarMenu) {
+    document.addEventListener('mousedown', handleClickOutside);
+  } else {
+    document.removeEventListener('mousedown', handleClickOutside);
+  }
+
+  return () => {
+    document.removeEventListener('mousedown', handleClickOutside);
+  };
+}, [mostrarMenu]);
 
 
- 
 
   return (
     <nav className="navbar">
@@ -196,33 +215,61 @@ const handleLogout = async () => {
   )}
   <IconButton onClick={handleLogout} icon={<FaSignOutAlt />} label="Salir" />
 </div>
-
 {mostrarMenu && (
-  <div className="menu">
+  <div className="menu" ref={menuRef}>
     <div className="menu-item" onClick={() => navigate('/EditarPerfilPage')}>
       <FaAt /> Modificar perfil
     </div>
-   
-    
     <div className="menu-item" onClick={() => navigate('/perfil')}>
       <FaKey /> Perfil
     </div>
     <div className="menu-item" onClick={() => navigate('/calificar-jugadores')}>
       <FaKey /> Calificar Jugadores
     </div>
-    <div className="menu-item" onClick={abrirWhatsApp}>
-  <FaBullhorn /> Publicitar mi cancha
-</div>
-
-
+    <div className="menu-item" onClick={() => setMostrarModalPublicidad(true)}>
+      <FaBullhorn /> Publicitar mi cancha
+    </div>
     {esAdmin && (
       <div className="menu-item" onClick={() => navigate('/crear-cancha')}>
         <FaPlus /> Cargar Cancha
       </div>
     )}
   </div>
-  
 )}
+
+
+
+
+ {mostrarModalPublicidad && (
+  <div className="modal-overlay" onClick={() => setMostrarModalPublicidad(false)}>
+    <div className="modal-content" onClick={e => e.stopPropagation()}>
+      <div className="modal-close" onClick={() => setMostrarModalPublicidad(false)}>×</div>
+      <div className="modal-publicitar">
+        <h3>Publicitá tu Cancha</h3>
+        <p>¿Querés que tu cancha aparezca en la app y reciba más reservas? Contactanos.</p>
+        <a
+  className="btn-contacto"
+  href="mailto:lazartepia95@gmail.com?subject=Publicidad%20Cancha%20en%20la%20App&body=Hola,%20quiero%20publicitar%20mi%20cancha%20en%20la%20app."
+>
+  📧 Enviar Email
+</a>
+
+       <button
+  className="btn-contacto"
+  onClick={() => {
+    const numero = '5492664168649';
+    const mensaje = encodeURIComponent('Hola! Quiero publicitar mi cancha en la app 🏟️📲');
+    window.open(`https://wa.me/${numero}?text=${mensaje}`, '_blank');
+  }}
+>
+  💬 WhatsApp
+</button>
+      </div>
+    </div>
+  </div>
+)}
+
+
 
     </nav>
     

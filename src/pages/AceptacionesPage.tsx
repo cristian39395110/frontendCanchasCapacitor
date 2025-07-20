@@ -15,15 +15,20 @@ const AceptacionesPage: React.FC = () => {
   const [botonBloqueado, setBotonBloqueado] = useState<{ [key: number]: boolean }>({});
   const [cantidadesEditadas, setCantidadesEditadas] = useState<{ [key: number]: number }>({});
   const usuarioId = localStorage.getItem('usuarioId') ?? '';
+  const esPremium = localStorage.getItem('esPremium') === 'true';
+
   const navigate = useNavigate();
-  const formatearFechaHora = (fecha: string) => {
-  const fechaCompleta = new Date(`${fecha}`);
-  return fechaCompleta.toLocaleString('es-AR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    hour12: false
-  });
+ const formatearFechaHora = (fecha: string) => {
+  const [año, mes, dia] = fecha.split('-');
+  return `${Number(dia)} de ${obtenerNombreMes(mes)} de ${año}`;
+};
+
+const obtenerNombreMes = (mes: string) => {
+  const nombres = [
+    'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+  ];
+  return nombres[parseInt(mes, 10) - 1];
 };
 
 
@@ -57,22 +62,36 @@ const AceptacionesPage: React.FC = () => {
   };
 
   const solicitarNuevoJugador = async (partidoId: number) => {
-    if (botonBloqueado[partidoId]) return;
-    setBotonBloqueado((prev) => ({ ...prev, [partidoId]: true }));
+  if (botonBloqueado[partidoId]) return;
 
-    try {
-      const res = await axios.post(`${API_URL}/api/partidos/reenviar-invitacion`, { partidoId });
-      toast.success(res.data.mensaje || '🔁 Nueva invitación enviada a jugadores interesados.');
-    } catch (error) {
-      toast.error('❌ No se pudo enviar la invitación.');
-    }
+  // Buscar el partido correspondiente
+  const partido = partidosConAceptaciones.find(p => p.id === partidoId);
+  if (!partido) return;
 
-    setTimeout(() => {
-      setBotonBloqueado((prev) => ({ ...prev, [partidoId]: false }));
-    }, 10000);
+  const confirmados = partido.usuariosAceptaron?.filter((u: any) => u.estado?.trim() === 'confirmado').length ?? 0;
 
-    refresh();
-  };
+  // Limitar si no es premium y ya tiene 12 jugadores confirmados
+  if (!esPremium && confirmados >= 12) {
+    toast.warn('🔒 Como usuario no premium, solo podés tener hasta 12 jugadores confirmados.');
+    return;
+  }
+
+  setBotonBloqueado((prev) => ({ ...prev, [partidoId]: true }));
+
+  try {
+    const res = await axios.post(`${API_URL}/api/partidos/reenviar-invitacion`, { partidoId });
+    toast.success(res.data.mensaje || '🔁 Nueva invitación enviada a jugadores interesados.');
+  } catch (error) {
+    toast.error('❌ No se pudo enviar la invitación.');
+  }
+
+  setTimeout(() => {
+    setBotonBloqueado((prev) => ({ ...prev, [partidoId]: false }));
+  }, 10000);
+
+  refresh();
+};
+
 
  const actualizarCantidadJugadores = async (partidoId: number, nuevaCantidad: number) => {
   try {

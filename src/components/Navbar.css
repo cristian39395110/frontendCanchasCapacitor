@@ -25,8 +25,49 @@
   box-sizing: border-box;
   overflow: hidden;      /* ← Previene desbordamiento */
 }
+/* Modal */
+.modal-publicitar {
+  padding: 20px;
+  background-color: var(--color-card); /* Fondo dinámico */
+  color: var(--color-text); /* Color de texto dinámico */
+  font-size: 1rem;
+  text-align: center;
+}
 
+.modal-publicitar h3 {
+  margin-top: 0;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: var(--color-text); /* Texto claro */
+}
 
+.modal-publicitar p {
+  font-size: 1rem;
+  margin-bottom: 16px;
+  color: var(--color-text); /* Texto claro */
+}
+
+.modal-publicitar a,
+.modal-publicitar button {
+  display: inline-block;
+  background-image: var(--color-btn-sec); /* Fondo dinámico */
+  color: rgb(29, 27, 27); /* Texto legible */
+  padding: 10px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  margin: 8px;
+  border: none;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.modal-publicitar a:hover,
+.modal-publicitar button:hover {
+  background-image: var(--color-btn-sec-hover); /* Hover dinámico */
+  transform: translateY(-1px);
+}
 .navbar-topbar h2 {
   cursor: pointer;
   font-size: 1.5rem;
@@ -68,6 +109,36 @@
   min-width: 40px;
   height: 40px;
   flex-shrink: 1; /* 🔑 deja que se achiquen si no hay espacio */
+}
+/* Estilo común para ambos botones */
+.modal-publicitar a,
+.modal-publicitar button {
+  display: inline-block;
+  background-color: red; /* Asegúrate de que sea el color que prefieras */
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  margin: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  border: none;
+  text-align: center;
+  width: auto; /* Asegúrate de que tengan el mismo ancho */
+}
+
+.modal-publicitar a:hover,
+.modal-publicitar button:hover {
+  background-color: #ff7a00; /* Cambia este color si quieres otro para el hover */
+  transform: translateY(-1px);
+}
+
+/* Para los links <a> */
+.modal-publicitar a:focus,
+.modal-publicitar button:focus {
+  outline: none;
 }
 
 .icon-button svg {
@@ -159,5 +230,26 @@
   .menu {
     font-size: 14px;
     padding: 8px;
+  }
+}
+/* Variables CSS para el tema claro (predeterminado) */
+:root {
+  --color-background: #ffffff; /* Fondo claro */
+  --color-text: #333333; /* Texto oscuro */
+  --color-card: #f7f7f7; /* Fondo de tarjetas */
+  --color-btn: #ff4d4d; /* Color de fondo para los botones */
+  --color-btn-sec: #e60000; /* Otro color de fondo para los botones */
+  --color-btn-sec-hover: #cc0000; /* Hover del botón */
+}
+
+/* Variables CSS para el tema oscuro */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: #121212; /* Fondo oscuro */
+    --color-text: #f1f1f1; /* Texto claro */
+    --color-card: #1f1f1f; /* Fondo de las tarjetas oscuro */
+    --color-btn: #ff4d4d; /* Color de fondo para los botones */
+    --color-btn-sec: #e60000; /* Otro color de fondo para los botones */
+    --color-btn-sec-hover: #cc0000; /* Hover del botón */
   }
 }

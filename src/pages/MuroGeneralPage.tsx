@@ -12,6 +12,17 @@ const MuroGeneralPage: React.FC = () => {
   const [fotoPublicacion, setFotoPublicacion] = useState<File | null>(null);
   const [mostrarComentarios, setMostrarComentarios] = useState<{ [key: number]: boolean }>({});
   const [videoAgrandado, setVideoAgrandado] = useState<string | null>(null);
+const obtenerThumbnail = (urlVideo: string) => {
+  try {
+    const parts = urlVideo.split('/upload/');
+    const base = parts[0];
+    const path = parts[1].replace('.mp4', '');
+    return `${base}/upload/so_1,w_400,h_250,c_fill/${path}.jpg`;
+  } catch (error) {
+    console.error('Error generando thumbnail:', error);
+    return urlVideo; // fallback
+  }
+};
 
 
   const navigate = useNavigate();
@@ -134,18 +145,17 @@ const MuroGeneralPage: React.FC = () => {
                   className="media-publicacion"
                 />
               )}
-  {publi.foto && publi.foto.match(/\.mp4$/i) && (
-  <div>
-    <video
-      controls
-      playsInline
-      preload="metadata"
+{publi.foto && publi.foto.match(/\.mp4$/i) && (
+  <div className="contenedor-thumbnail-video" onClick={() => setVideoAgrandado(publi.foto)}>
+    <img
+      src={obtenerThumbnail(publi.foto)}
+      alt="Miniatura del video"
       className="media-publicacion"
-      src={publi.foto}
-      onClick={() => setVideoAgrandado(publi.foto)}
     />
+    <div className="icono-play">▶</div>
   </div>
 )}
+
 
               <div className="acciones-publicacion">
                 <button
@@ -204,7 +214,7 @@ const MuroGeneralPage: React.FC = () => {
         )}
       </div>
 
-      {videoAgrandado && (
+{videoAgrandado && (
   <div className="video-overlay" onClick={() => setVideoAgrandado(null)}>
     <video
       src={videoAgrandado}
@@ -218,6 +228,7 @@ const MuroGeneralPage: React.FC = () => {
     </button>
   </div>
 )}
+
 
         
     </>
