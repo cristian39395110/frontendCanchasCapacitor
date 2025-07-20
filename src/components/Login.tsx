@@ -28,6 +28,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [emailRecuperacion, setEmailRecuperacion] = useState('');
   const [confirmarCambio, setConfirmarCambio] = useState(false);
+  
 
 
   useEffect(() => {
@@ -74,7 +75,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     e.preventDefault();
     try {
       let { identifier: deviceId } = await Device.getId();
-      deviceId="f44fae0bc7c1c63c";
+    
       const res = await fetch(`${API_URL}/api/usuarios/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

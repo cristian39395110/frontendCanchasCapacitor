@@ -12,16 +12,22 @@ const Invitaciones: React.FC = () => {
   const [filtroEstado, setFiltroEstado] = useState('pendiente');
   const usuarioId = localStorage.getItem('usuarioId');
   const navigate = useNavigate();
-  const formatearFechaHora = (fecha: string) => {
-  const fechaCompleta = new Date(`${fecha}`);
-  return fechaCompleta.toLocaleString('es-AR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    hour12: false,
-  });
+ 
+
+
+const formatearFecha = (fecha: string) => {
+  const soloFecha = fecha.includes('T') ? fecha.split('T')[0] : fecha;
+  const [año, mes, dia] = soloFecha.split('-');
+  return `${Number(dia)} de ${obtenerNombreMes(mes)} de ${año}`;
 };
 
+const obtenerNombreMes = (mes: string) => {
+  const nombres = [
+    'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+  ];
+  return nombres[parseInt(mes, 10) - 1];
+};
 
 
   useEffect(() => {
@@ -128,7 +134,7 @@ const aceptarInvitacion = (partidoId: number) => {
                 <p><strong>🏙 Localidad:</strong> {inv.localidad || 'No especificada'}</p>
                 <p><strong>📍 Direccion:</strong> {inv.lugar}</p>
                 <p><strong>🏟 Cancha:</strong> {inv.nombreCancha}</p>
-                <p><strong>📅 Fecha:</strong> {formatearFechaHora(inv.fecha)}</p>
+                <p><strong>📅 Fecha:</strong> {formatearFecha(inv.fecha)}</p>
 
                 <p><strong>⏰ Hora:</strong> {inv.hora}</p>
                 <p><strong>👤 Organizador:</strong> {inv.organizador}</p>
