@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">canchas-pwa</string>
-    <string name="title_activity_main">canchas-pwa</string>
+    <string name="app_name">MatchClub</string>
+    <string name="title_activity_main">MatchClub</string>
     <string name="package_name">com.canchas.app</string>
     <string name="custom_url_scheme">com.canchas.app</string>
 </resources>

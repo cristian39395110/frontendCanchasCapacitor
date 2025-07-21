@@ -5,6 +5,7 @@ import { API_URL } from '../config';
 import { suscribirseANotificaciones, desuscribirseANotificaciones } from '../utils/notificaciones';
 import { io } from 'socket.io-client';
 import './Navbar.css';
+import logoMatchClub from '../assets/ChatGPT Image 20 jul 2025, 13_34_06.png'; // ajustá el path si está en otra carpeta
 
 
 
@@ -27,6 +28,16 @@ const Navbar: React.FC = () => {
   const [esAdmin, setEsAdmin] = useState(false);
   const [esId11 , setEsId11] = useState(false);
   const [mostrarModalPublicidad, setMostrarModalPublicidad] = useState(false);
+  const [mostrarModalSoporte, setMostrarModalSoporte] = useState(false);
+
+
+const [esPremium, setEsPremium] = useState(false);
+
+useEffect(() => {
+  const esPremiumLocal = localStorage.getItem('esPremium') === 'true';
+  setEsPremium(esPremiumLocal);
+}, []);
+
 
   
 
@@ -190,10 +201,19 @@ useEffect(() => {
 
   return (
     <nav className="navbar">
-      <div className="navbar-topbar">
-        <h2 onClick={() => navigate('/dashboard')}><FaFutbol /> Deportes</h2>
-        <FaBars className="menu-icon" onClick={() => setMostrarMenu(!mostrarMenu)} />
-      </div>
+ <div className="navbar-topbar">
+   
+       <h2 onClick={() => navigate('/dashboard')} className="navbar-title">
+<img
+  src={logoMatchClub}
+  alt="MatchClub Logo"
+  className="navbar-logo"
+/>
+
+        Deportes
+      </h2>
+      <FaBars className="menu-icon" onClick={() => setMostrarMenu(!mostrarMenu)} />
+    </div>
 
       <div className="navbar-buttons">
   {esId11 && (
@@ -229,6 +249,11 @@ useEffect(() => {
     <div className="menu-item" onClick={() => setMostrarModalPublicidad(true)}>
       <FaBullhorn /> Publicitar mi cancha
     </div>
+
+    <div className="menu-item" onClick={() => setMostrarModalSoporte(true)}>
+  <FaEnvelopeOpenText /> Soporte técnico
+</div>
+
     {esAdmin && (
       <div className="menu-item" onClick={() => navigate('/crear-cancha')}>
         <FaPlus /> Cargar Cancha
@@ -239,6 +264,23 @@ useEffect(() => {
 
 
 
+{mostrarModalSoporte && (
+  <div className="modal-overlay" onClick={() => setMostrarModalSoporte(false)}>
+    <div className="modal-content" onClick={e => e.stopPropagation()}>
+      <div className="modal-close" onClick={() => setMostrarModalSoporte(false)}>×</div>
+      <div className="modal-publicitar">
+        <h3>Soporte Técnico</h3>
+        <p>¿Tenés alguna duda o problema con la app?</p>
+        <a
+          className="btn-contacto"
+          href="mailto:lazartepia95@gmail.com?subject=Soporte%20MatchClub&body=Hola,%20necesito%20ayuda%20con%20la%20app%20MatchClub."
+        >
+          📧 Contactar por Gmail
+        </a>
+      </div>
+    </div>
+  </div>
+)}
 
  {mostrarModalPublicidad && (
   <div className="modal-overlay" onClick={() => setMostrarModalPublicidad(false)}>
@@ -269,10 +311,16 @@ useEffect(() => {
   </div>
 )}
 
+ {esPremium && (
+  <div className="franja-premium">
+    💎 Usuario Premium
+  </div>
+)}
 
 
     </nav>
-    
+   
+
   );
 };
 
