@@ -24,6 +24,7 @@ import CrearCanchaPage from './pages/CrearCanchaPage';
 import EditarPerfilPage from './pages/EditarPerfilPage';
 import RutaProtegidaSoloAdmin from './components/RutaProtegidaSoloAdmin'; // si está ahí, si no ajustá el path
 
+import SplashPage from './pages/SplashPage';
 
 import PrivateRoute from './components/PrivateRoute';
 import BottomNavbar from './components/BottomNavbar';
@@ -167,6 +168,7 @@ function AppInner() {
          <Route path="/BuscarUsuario" element={<PrivateRoute><BuscarUsuariosPage /></PrivateRoute>} />
          <Route path="/canchas" element={<CanchasPage />} />
          <Route path="/crear-cancha" element={<RutaProtegidaSoloAdmin><CrearCanchaPage /></RutaProtegidaSoloAdmin>} />
+         <Route path="/" element={<SplashPage />} />
 
 
 

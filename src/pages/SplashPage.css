@@ -1,0 +1,33 @@
+.splash-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #111827; /* Azul oscuro elegante */
+  color: white;
+  text-align: center;
+}
+
+.splash-logo {
+  width: 150px;
+  height: auto;
+  margin-bottom: 20px;
+  animation: zoomIn 1s ease-in-out;
+}
+
+.splash-text {
+  font-size: 1.2rem;
+  opacity: 0.8;
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

@@ -24,15 +24,15 @@ const CanchasPage: React.FC = () => {
   const [deportes, setDeportes] = useState<string[]>([]);
   const [deporteSeleccionado, setDeporteSeleccionado] = useState('');
   const [mostrarMapa, setMostrarMapa] = useState(false);
-const [latMapa, setLatMapa] = useState<number | null>(null);
-const [lonMapa, setLonMapa] = useState<number | null>(null);
-const abrirMapa = (lat: string, lon: string) => {
-  setLatMapa(parseFloat(lat));
-  setLonMapa(parseFloat(lon));
-  setMostrarMapa(true);
-};
+  const [latMapa, setLatMapa] = useState<number | null>(null);
+  const [lonMapa, setLonMapa] = useState<number | null>(null);
+  const [radioBusqueda, setRadioBusqueda] = useState(20);
 
-
+  const abrirMapa = (lat: string, lon: string) => {
+    setLatMapa(parseFloat(lat));
+    setLonMapa(parseFloat(lon));
+    setMostrarMapa(true);
+  };
 
   useEffect(() => {
     const obtenerUbicacion = async () => {
@@ -60,45 +60,45 @@ const abrirMapa = (lat: string, lon: string) => {
   }, []);
 
   useEffect(() => {
-  const fetchCanchas = async () => {
-    try {
-      let url = `${API_URL}/api/canchas`;
-      if (deporteSeleccionado) {
-        url += `?deporte=${encodeURIComponent(deporteSeleccionado)}`;
+    const fetchCanchas = async () => {
+      try {
+        let url = `${API_URL}/api/canchas`;
+        if (deporteSeleccionado) {
+          url += `?deporte=${encodeURIComponent(deporteSeleccionado)}`;
+        }
+
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('❌ Error al obtener canchas');
+        const data: any[] = await res.json();
+
+        if (lat && lon) {
+          const conDistancia = data
+            .filter((c: any) => c.latitud && c.longitud)
+            .map((c: any) => ({
+              ...c,
+              distancia: parseFloat(
+                calcularDistanciaKm(
+                  lat,
+                  lon,
+                  parseFloat(c.latitud),
+                  parseFloat(c.longitud)
+                ).toFixed(1)
+              ),
+            }));
+
+          const filtradas = conDistancia
+            .filter((c: { distancia: number }) => !isNaN(c.distancia) && c.distancia <= radioBusqueda)
+            .sort((a, b) => a.distancia - b.distancia);
+
+          setCanchas(filtradas);
+        }
+      } catch (err) {
+        console.error('❌ Error al cargar canchas:', err);
       }
+    };
 
-      const res = await fetch(url);
-      const data: any[] = await res.json();
-
-      if (lat && lon) {
-        const conDistancia = data.map((c: any) => ({
-          ...c,
-          distancia: parseFloat(
-            calcularDistanciaKm(
-              lat,
-              lon,
-              parseFloat(c.latitud),
-              parseFloat(c.longitud)
-            ).toFixed(1)
-          ),
-        }));
-
-        const filtradas = conDistancia
-          .filter((c: { distancia: number }) => !isNaN(c.distancia))
-          .sort(
-            (a: { distancia: number }, b: { distancia: number }) =>
-              a.distancia - b.distancia
-          );
-
-        setCanchas(filtradas);
-      }
-    } catch (err) {
-      console.error('❌ Error al cargar canchas:', err);
-    }
-  };
-
-  if (lat && lon) fetchCanchas();
-}, [lat, lon, deporteSeleccionado]);
+    if (lat && lon) fetchCanchas();
+  }, [lat, lon, deporteSeleccionado, radioBusqueda]);
 
   const abrirWhatsApp = (telefono: string, establecimiento: string) => {
     const mensaje = `Hola! Quisiera consultar por una cancha en ${establecimiento}.`;
@@ -106,28 +106,55 @@ const abrirMapa = (lat: string, lon: string) => {
     window.open(url, '_blank');
   };
 
+  // ✅ Esto debe ir justo antes del return
+  if (lat === null || lon === null) {
+    return (
+      <>
+        <Navbar />
+        <p style={{ textAlign: 'center', marginTop: '40px' }}>
+          📍 Obteniendo tu ubicación...
+        </p>
+      </>
+    );
+  }
+
   return (
     <>
       <Navbar />
+
       <div className="canchas-container">
         <h2>🏟️ Establecimientos deportivos cerca tuyo</h2>
 
-        <div className="filtro-deporte">
-          <select
-            value={deporteSeleccionado}
-            onChange={(e) => setDeporteSeleccionado(e.target.value)}
-          >
-            <option value="">Todos los deportes</option>
-            {deportes.map((dep) => (
-              <option key={dep} value={dep}>{dep}</option>
-            ))}
-          </select>
+        <div className="filtros-container">
+          <div className="filtro-deporte">
+            <select value={deporteSeleccionado} onChange={(e) => setDeporteSeleccionado(e.target.value)}>
+              <option value="">Todos los deportes</option>
+              {deportes.map((dep) => (
+                <option key={dep} value={dep}>{dep}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="filtro-radio">
+            <select value={radioBusqueda} onChange={(e) => setRadioBusqueda(parseInt(e.target.value))}>
+              <option value={5}>🔍 5 km</option>
+              <option value={10}>🔍 10 km</option>
+              <option value={20}>🔍 20 km</option>
+              <option value={50}>🔍 50 km</option>
+            </select>
+          </div>
         </div>
+
+        {canchas.length === 0 && (
+          <p style={{ textAlign: 'center', color: '#999', marginTop: '20px' }}>
+            No se encontraron canchas dentro del radio seleccionado.
+          </p>
+        )}
 
         {canchas.map((cancha) => (
           <div className="cancha-card-h" key={cancha.id}>
             <img
-              src={cancha.foto}
+              src={cancha.foto || '/placeholder.jpg'}
               alt={cancha.nombre}
               onClick={() => abrirWhatsApp(cancha.whatsapp, cancha.nombre)}
             />
@@ -140,33 +167,31 @@ const abrirMapa = (lat: string, lon: string) => {
               </button>
 
               {cancha.latitud && cancha.longitud && (
-  <button
-    onClick={() => abrirMapa(cancha.latitud, cancha.longitud)}
-    className="btn-ver-mapa"
-  >
-    Ver mapa
-  </button>
-)}
-
+                <button onClick={() => abrirMapa(cancha.latitud, cancha.longitud)} className="btn-ver-mapa">
+                  Ver mapa
+                </button>
+              )}
             </div>
           </div>
         ))}
       </div>
-      {mostrarMapa && latMapa && lonMapa && (
-  <div className="modal-overlay" onClick={() => setMostrarMapa(false)}>
-    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-      <div className="modal-close" onClick={() => setMostrarMapa(false)}>✕</div>
-      <iframe
-        src={`https://www.google.com/maps/embed/v1/place?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&q=${latMapa},${lonMapa}`}
-        loading="lazy"
-        allowFullScreen
-      ></iframe>
-    </div>
-  </div>
-)}
 
+      {mostrarMapa && latMapa && lonMapa && (
+        <div className="modal-overlay" onClick={() => setMostrarMapa(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-close" onClick={() => setMostrarMapa(false)}>✕</div>
+            <iframe
+              referrerPolicy="no-referrer-when-downgrade"
+              src={`https://www.google.com/maps/embed/v1/place?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&q=${latMapa},${lonMapa}`}
+              loading="lazy"
+              allowFullScreen
+            ></iframe>
+          </div>
+        </div>
+      )}
     </>
   );
 };
+
 
 export default CanchasPage;

@@ -90,6 +90,15 @@ useEffect(() => {
     partidoSeleccionadoRef.current = partidoSeleccionadoId;
   }, [partidoSeleccionadoId]);
 
+useEffect(() => {
+  const setVH = () => {
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  };
+  window.addEventListener('resize', setVH);
+  setVH();
+  return () => window.removeEventListener('resize', setVH);
+}, []);
 
 
       useEffect(() => {
@@ -372,6 +381,33 @@ const recibirMensaje = (nuevo: Mensaje) => {
     };
   }, []);
 
+
+
+
+  useEffect(() => {
+  const input = document.querySelector('.chat-input input');
+  const mensajesContainer = document.querySelector('.chat-messages');
+
+  const scrollToBottom = () => {
+    if (mensajesContainer) {
+      mensajesContainer.scrollTop = mensajesContainer.scrollHeight;
+    }
+  };
+
+  if (input && mensajesContainer) {
+    const handleFocus = () => {
+      setTimeout(() => {
+        scrollToBottom();
+      }, 300); // ⏳ Esperamos a que suba el teclado
+    };
+
+    input.addEventListener('focus', handleFocus);
+
+    return () => {
+      input.removeEventListener('focus', handleFocus);
+    };
+  }
+}, []);
 
       return (
         <div>
