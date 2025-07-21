@@ -101,19 +101,7 @@ useEffect(() => {
 }, []);
 
 
-      useEffect(() => {
-      const input = document.querySelector('.chat-input input');
-      if (!input) return;
-
-      const focusInput = () => {
-        setTimeout(() => {
-          input.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }, 200);
-      };
-
-      input.addEventListener('focus', focusInput);
-      return () => input.removeEventListener('focus', focusInput);
-    }, []);
+ 
 
 
 
@@ -384,30 +372,32 @@ const recibirMensaje = (nuevo: Mensaje) => {
 
 
 
-  useEffect(() => {
+useEffect(() => {
   const input = document.querySelector('.chat-input input');
-  const mensajesContainer = document.querySelector('.chat-messages');
 
   const scrollToBottom = () => {
-    if (mensajesContainer) {
-      mensajesContainer.scrollTop = mensajesContainer.scrollHeight;
+    if (mensajesRef.current) {
+      mensajesRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
-  if (input && mensajesContainer) {
-    const handleFocus = () => {
-      setTimeout(() => {
-        scrollToBottom();
-      }, 300); // ⏳ Esperamos a que suba el teclado
-    };
+  const handleFocus = () => {
+    setTimeout(() => {
+      scrollToBottom();
+    }, 300);
+  };
 
+  if (input) {
     input.addEventListener('focus', handleFocus);
-
-    return () => {
-      input.removeEventListener('focus', handleFocus);
-    };
   }
+
+  return () => {
+    if (input) {
+      input.removeEventListener('focus', handleFocus);
+    }
+  };
 }, []);
+
 
       return (
         <div>
