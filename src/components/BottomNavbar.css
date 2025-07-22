@@ -11,6 +11,26 @@
   z-index: 1000;
   border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
+.alerta-nuevas-publicaciones {
+  background-color: #fef3c7;
+  color: #92400e;
+  padding: 10px;
+  border-radius: 10px;
+  margin: 10px 0;
+  font-weight: bold;
+  text-align: center;
+}
+.alerta-nuevas-publicaciones button {
+  margin-top: 6px;
+  padding: 6px 12px;
+  background-color: #fde68a;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.alerta-nuevas-publicaciones button:hover {
+  background-color: #fcd34d;
+}
 
 
 
@@ -121,5 +141,14 @@
     width: 90vw;
     right: 5vw;
   }
+}
+.overlay-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4); /* Fondo oscuro */
+  z-index: 999; /* Debajo del modal */
 }
 

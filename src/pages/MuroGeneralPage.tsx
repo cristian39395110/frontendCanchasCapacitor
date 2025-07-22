@@ -1,8 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { API_URL } from '../config';
 import Navbar from '../components/Navbar';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, } from 'react-router-dom';
 import './MuroGeneralPage.css';
+    import { socket } from '../utils/socket'; // si ya lo tenés
+
+
+import { useLocation } from 'react-router-dom';
 
 const MuroGeneralPage: React.FC = () => {
   const [publicaciones, setPublicaciones] = useState<any[]>([]);
@@ -12,6 +16,57 @@ const MuroGeneralPage: React.FC = () => {
   const [fotoPublicacion, setFotoPublicacion] = useState<File | null>(null);
   const [mostrarComentarios, setMostrarComentarios] = useState<{ [key: number]: boolean }>({});
   const [videoAgrandado, setVideoAgrandado] = useState<string | null>(null);
+
+  const location = useLocation();
+  const refPublicaciones = useRef<{ [key: number]: HTMLDivElement | null }>({});
+  
+
+const queryParams = new URLSearchParams(location.search);
+const publicacionIdDestacada = queryParams.get('publicacionId');
+const scrollHastaNueva = location.state?.scrollHastaNueva;
+
+useEffect(() => {
+  if (scrollHastaNueva) {
+    const int = setInterval(() => {
+      const primera = document.querySelector('.publicacion');
+      if (primera) {
+        primera.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        clearInterval(int);
+      }
+    }, 300);
+    return () => clearInterval(int);
+  }
+}, [scrollHastaNueva]);
+
+
+
+useEffect(() => {
+  if (!usuarioId) return;
+  fetch(`${API_URL}/api/publicaciones/leidas`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ usuarioId }),
+  });
+}, []);
+
+useEffect(() => {
+  if (!usuarioId) return;
+
+  socket.emit('join', `usuario-${usuarioId}`);
+
+  socket.on('nueva-publicacion', ({ publicacion }) => {
+    console.log('🆕 Publicación recibida por socket:', publicacion);
+
+    setPublicaciones(prev => [publicacion, ...prev]);
+  });
+
+  return () => {
+    socket.emit('leave', `usuario-${usuarioId}`);
+    socket.off('nueva-publicacion');
+  };
+}, [usuarioId]);
+
+
 const obtenerThumbnail = (urlVideo: string) => {
   try {
     const parts = urlVideo.split('/upload/');
@@ -23,6 +78,20 @@ const obtenerThumbnail = (urlVideo: string) => {
     return urlVideo; // fallback
   }
 };
+
+useEffect(() => {
+  if (!publicacionIdDestacada) return;
+  const idDestacado = Number(publicacionIdDestacada);
+  const int = setInterval(() => {
+    if (refPublicaciones.current[idDestacado]) {
+      refPublicaciones.current[idDestacado]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      clearInterval(int);
+    }
+  }, 100);
+  return () => clearInterval(int);
+}, [publicacionIdDestacada]);
+
+
 
 
   const navigate = useNavigate();
@@ -122,7 +191,15 @@ const obtenerThumbnail = (urlVideo: string) => {
           <p>No hay publicaciones aún.</p>
         ) : (
           publicaciones.map((publi, i) => (
-            <div key={i} className="publicacion">
+          <div
+  key={i}
+ref={(el) => {
+  if (el) refPublicaciones.current[publi.id] = el;
+}}
+
+  className={`publicacion ${publi.id.toString() === publicacionIdDestacada ? 'resaltada' : ''}`}
+>
+
               <div
                 className="publicacion-header"
                 onClick={() => navigate(`/perfil/${publi.Usuario?.id}`)}
