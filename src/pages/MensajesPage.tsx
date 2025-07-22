@@ -10,7 +10,7 @@
 
     import './MensajesPage.css';
 
-
+import { Keyboard } from '@capacitor/keyboard';
 
 
     interface Usuario {
@@ -49,6 +49,24 @@
       const tipoChatRef = useRef<'usuario' | 'partido' | null>(null);
       const [usuariosConMensajes, setUsuariosConMensajes] = useState<number[]>([]);
 const [partidosConMensajes, setPartidosConMensajes] = useState<number[]>([]);
+
+
+useEffect(() => {
+  Keyboard.setScroll({ isDisabled: true }); // Evita el scroll automático que puede romper diseño
+
+  Keyboard.addListener('keyboardWillShow', () => {
+    document.body.classList.add('keyboard-visible');
+  });
+
+  Keyboard.addListener('keyboardWillHide', () => {
+    document.body.classList.remove('keyboard-visible');
+  });
+
+  return () => {
+    Keyboard.removeAllListeners();
+  };
+}, []);
+
 
 
 
