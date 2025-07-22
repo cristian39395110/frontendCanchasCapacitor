@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { FaHome, FaSearch, FaUserFriends } from 'react-icons/fa';
 import { API_URL } from '../config';
 import './BottomNavbar.css';
+  import { socket } from '../utils/socket'; // o la ruta correcta
+  import { toast } from 'react-toastify';
 
 interface BottomNavbarProps {
   mensajesNoLeidos: number;
@@ -14,7 +16,52 @@ const BottomNavbar: React.FC<BottomNavbarProps> = ({ mensajesNoLeidos, invitacio
   const usuarioId = localStorage.getItem('usuarioId');
   const [mostrarModal, setMostrarModal] = useState(false);
   const [solicitudes, setSolicitudes] = useState<any[]>([]);
-  const [nuevasPublicaciones, setNuevasPublicaciones] = useState(0);
+  const [, setNuevasPublicaciones] = useState(0);
+  const [, setNotificacionesNoLeidas] = useState(0);
+  const [notificaciones, setNotificaciones] = useState<any[]>([]);
+
+
+useEffect(() => {
+  if (!usuarioId) return;
+
+  socket.emit('join', `usuario-${usuarioId}`);
+
+  socket.on('nuevaNotificacion', (nueva) => {
+    console.log('🔔 Notificación recibida por socket:', nueva);
+
+    setNotificaciones((prev) => [nueva, ...prev]);
+    setNotificacionesNoLeidas((prev) => prev + 1);
+    toast.info(nueva.mensaje);
+  });
+
+  return () => {
+    socket.off('nuevaNotificacion');
+  };
+}, [usuarioId]);
+
+
+useEffect(() => {
+  if (!usuarioId) return;
+
+  const fetchNotificaciones = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/envio-notificaciones/${usuarioId}`);
+      const data = await res.json();
+      setNotificaciones(data);
+
+      const noLeidas = data.filter((n: any) => !n.leida).length;
+      setNotificacionesNoLeidas(noLeidas);
+    } catch (err) {
+      console.error('❌ Error al obtener notificaciones:', err);
+    }
+  };
+
+  fetchNotificaciones();
+  const intervalo = setInterval(fetchNotificaciones, 15000);
+  return () => clearInterval(intervalo);
+}, [usuarioId]);
+
+
 
 useEffect(() => {
   if (!usuarioId) return;
@@ -107,40 +154,98 @@ const cancelarSolicitud = async (usuarioId: number, amigoId: number) => {
   <>
     <div className="overlay-modal" onClick={() => setMostrarModal(false)}></div>
 
-    <div
-      className="modal-solicitudes"
-      onClick={(e) => e.stopPropagation()} // ⛔ evita que se cierre al tocar dentro del modal
-    >
-      <h4>👥 Solicitudes</h4>
-      {nuevasPublicaciones > 0 && (
-        <div className="alerta-nuevas-publicaciones">
-          <p>🆕 Tenés {nuevasPublicaciones} publicaciones nuevas</p>
-          <button onClick={() => {
-            setMostrarModal(false);
-            navigate('/muro', { state: { scrollHastaNueva: true } });
-          }}>
-            Ver publicaciones
-          </button>
-        </div>
-      )}
-      {solicitudes.length === 0 ? (
-        <p>No tenés nuevas solicitudes</p>
+    <div className="modal-solicitudes" onClick={(e) => e.stopPropagation()}>
+      <h4>🔔 Notificaciones</h4>
+      {notificaciones.length === 0 ? (
+        <p>No tenés nuevas notificaciones</p>
       ) : (
-        solicitudes.map((s) => (
-          <div key={s.id} className="solicitud-item">
-            <img
-              src={s.fotoPerfil ? `${API_URL}/uploads/${s.fotoPerfil}` : '/default-profile.png'}
-              alt="perfil"
-              className="foto-solicitud"
-              onError={(e) => {
-                const img = e.target as HTMLImageElement;
-                img.src = '/default-profile.png';
-              }}
-            />
-            <span className="nombre-solicitante">{s.emisorNombre}</span>
+        notificaciones.map((n) => (
+          <div key={n.id} className="solicitud-item">
+           <img
+  src={n.foto ? n.foto : '/default-profile.png'}
+  alt="perfil"
+  className="foto-solicitud"
+  onClick={async () => {
+    try {
+      await fetch(`${API_URL}/api/envio-notificaciones/marcar-leida/${n.id}`, {
+        method: 'PATCH',
+      });
+      navigate(`/perfil/${n.emisorId}`);
+      setMostrarModal(false);
+    } catch (err) {
+      console.error('❌ Error al marcar como leída:', err);
+    }
+  }}
+  onError={(e) => {
+    const img = e.target as HTMLImageElement;
+    img.src = '/default-profile.png';
+  }}
+/>
+
+
+            <span className="nombre-solicitante">{n.mensaje}</span>
+
             <div className="acciones-mini">
-              <button onClick={() => aceptarSolicitud(s.usuarioId, s.amigoId)}>✅</button>
-              <button onClick={() => cancelarSolicitud(s.usuarioId, s.amigoId)}>❌</button>
+              {n.tipo === 'solicitud' && (
+                <>
+                  <button
+                    onClick={async () => {
+                      await fetch(`${API_URL}/api/envio-notificaciones/marcar-leida/${n.id}`, {
+                        method: 'PATCH',
+                      });
+                      await aceptarSolicitud(n.usuarioId, n.emisorId);
+                    }}
+                  >
+                    ✅
+                  </button>
+                  <button
+                    onClick={async () => {
+                      await fetch(`${API_URL}/api/envio-notificaciones/marcar-leida/${n.id}`, {
+                        method: 'PATCH',
+                      });
+                      await cancelarSolicitud(n.usuarioId, n.emisorId);
+                    }}
+                  >
+                    ❌
+                  </button>
+                </>
+              )}
+
+              {(n.tipo === 'comentario' || n.tipo === 'like') && (
+                <button
+                  onClick={async () => {
+                    try {
+                      await fetch(`${API_URL}/api/envio-notificaciones/marcar-leida/${n.id}`, {
+                        method: 'PATCH',
+                      });
+                      setMostrarModal(false);
+                      navigate(`/publicacion/${n.publicacionId}`);
+                    } catch (err) {
+                      console.error('❌ Error al redirigir a publicación:', err);
+                    }
+                  }}
+                >
+                  Ver
+                </button>
+              )}
+
+              {n.tipo === 'amistad' && (
+                <button
+                  onClick={async () => {
+                    try {
+                      await fetch(`${API_URL}/api/envio-notificaciones/marcar-leida/${n.id}`, {
+                        method: 'PATCH',
+                      });
+                      navigate(`/perfil/${n.emisorId}`);
+                      setMostrarModal(false);
+                    } catch (err) {
+                      console.error('❌ Error al redirigir a perfil:', err);
+                    }
+                  }}
+                >
+                  Ver perfil
+                </button>
+              )}
             </div>
           </div>
         ))
@@ -148,6 +253,7 @@ const cancelarSolicitud = async (usuarioId: number, amigoId: number) => {
     </div>
   </>
 )}
+
 
 
     </>
