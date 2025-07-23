@@ -20,29 +20,63 @@
     const [comentarioTexto, setComentarioTexto] = useState<{ [key: number]: string }>({});
     const [reseñas, setReseñas] = useState<any[]>([]);
     const [mostrarModalReseñas, setMostrarModalReseñas] = useState(false);
+    const [esAmigo, setEsAmigo] = useState(false);
+const [haySolicitudPendiente, setHaySolicitudPendiente] = useState(false);
+const [videoAgrandado, setVideoAgrandado] = useState<string | null>(null);
+
+const handleEliminarComentario = async (comentarioId: number, publicacionId: number) => {
+  try {
+ await fetch(`${API_URL}/api/publicaciones/comentarios/${comentarioId}?usuarioId=${usuarioId}`, {
+  method: 'DELETE',
+});
+
+
+    setPublicaciones(prev =>
+      prev.map(publi =>
+        publi.id === publicacionId
+          ? {
+              ...publi,
+              Comentarios: publi.Comentarios.filter((c: any) => c.id !== comentarioId),
+            }
+          : publi
+      )
+    );
+  } catch (err) {
+    console.error('❌ Error al eliminar comentario', err);
+  }
+};
 
 
 
-    useEffect(() => {
-      if (!usuarioId || !idPerfil) return;
+useEffect(() => {
+  if (!usuarioId || !idPerfil) return;
 
-      setEsPropioPerfil(idPerfil === usuarioId);
+  setEsPropioPerfil(idPerfil === usuarioId);
 
-      fetch(`${API_URL}/api/usuarios/${idPerfil}`)
-        .then((res) => res.json())
-        .then((data) => setUsuario(data))
-        .catch((err) => console.error('Error al cargar perfil', err));
+  // 1️⃣ Primero traemos los datos del usuario
+  fetch(`${API_URL}/api/usuarios/${idPerfil}?solicitanteId=${usuarioId}`)
+    .then((res) => res.json())
+    .then((data) => {
+      setUsuario(data);
+      setEsAmigo(data.esAmigo);
+      setHaySolicitudPendiente(data.haySolicitudPendiente);
 
-      fetch(`${API_URL}/api/publicaciones/${idPerfil}?solicitanteId=${usuarioId}`)
-        .then(res => res.json())
-        .then(data => setPublicaciones(data))
-        .catch(err => console.error('Error al cargar publicaciones', err));
+      // 2️⃣ Si somos amigos o es nuestro perfil → cargamos publicaciones
+      if (data.esAmigo || idPerfil === usuarioId) {
+        fetch(`${API_URL}/api/publicaciones/${idPerfil}?solicitanteId=${usuarioId}`)
+          .then(res => res.json())
+          .then(data => setPublicaciones(data))
+          .catch(err => console.error('Error al cargar publicaciones', err));
+      }
+    });
 
-      fetch(`${API_URL}/api/historialpuntuacion/${idPerfil}`)
-        .then(res => res.json())
-        .then(data => setReseñas(data))
-        .catch(err => console.error('Error al cargar reseñas', err));
-    }, [usuarioId, idPerfil]);
+  // Cargar reseñas (esto sí puede ir siempre)
+  fetch(`${API_URL}/api/historialpuntuacion/${idPerfil}`)
+    .then(res => res.json())
+    .then(data => setReseñas(data))
+    .catch(err => console.error('Error al cargar reseñas', err));
+
+}, [usuarioId, idPerfil]);
 
     const handlePublicar = async () => {
       await Toast.show({ text: '📤 Subiendo publicación...' });
@@ -124,6 +158,58 @@ if (fotoPublicacion && fotoPublicacion.type.startsWith('video/')) {
       setComentarioTexto(prev => ({ ...prev, [publicacionId]: '' }));
     };
 
+const agregarAmigo = async () => {
+  try {
+     const res = await fetch(`${API_URL}/api/amistad/solicitar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuarioId: usuarioId, amigoId: idPerfil }) // 👈 FIXED
+    });
+
+    const data = await res.json();
+    await Toast.show({ text: data.mensaje || 'Solicitud enviada ✅' });
+    setHaySolicitudPendiente(true);
+  } catch (err) {
+    await Toast.show({ text: '❌ Error al enviar solicitud' });
+  }
+};
+
+const eliminarAmistad = async () => {
+  try {
+    const res = await fetch(`${API_URL}/api/amigos/eliminar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuarioId, amigoId: idPerfil })
+    });
+
+    const data = await res.json();
+    await Toast.show({ text: data.mensaje || 'Amistad eliminada' });
+
+    setEsAmigo(false);
+    setHaySolicitudPendiente(false);
+  } catch (err) {
+    await Toast.show({ text: '❌ Error al eliminar amistad' });
+  }
+};
+
+
+const cancelarSolicitud = async () => {
+  try {
+    const res = await fetch(`${API_URL}/api/amigos/cancelar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuarioId, amigoId: idPerfil })
+    });
+
+    const data = await res.json();
+    await Toast.show({ text: data.mensaje || 'Solicitud cancelada' });
+    setHaySolicitudPendiente(false);
+  } catch (err) {
+    await Toast.show({ text: '❌ Error al cancelar solicitud' });
+  }
+};
+
+
     const toggleLike = async (publicacionId: number) => {
       try {
         const res = await fetch(`${API_URL}/api/publicaciones/${publicacionId}/like`, {
@@ -171,6 +257,19 @@ if (fotoPublicacion && fotoPublicacion.type.startsWith('video/')) {
             </div>
 
             <h2>{usuario.nombre}</h2>
+ {!esPropioPerfil && (
+  <div style={{ marginTop: '10px' }}>
+    {esAmigo ? (
+      <button className="boton-accion" onClick={eliminarAmistad}>❌ Eliminar amistad</button>
+    ) : haySolicitudPendiente ? (
+      <button className="boton-accion" onClick={cancelarSolicitud}>❌ Cancelar solicitud</button>
+    ) : (
+      <button className="boton-accion" onClick={agregarAmigo}>➕ Agregar como amigo</button>
+    )}
+  </div>
+)}
+
+
             <p className="perfil-email">📧 {usuario.email}</p>
             <div className="perfil-datos">
               <p><strong>Localidad:</strong> {usuario.localidad}</p>
@@ -249,7 +348,7 @@ if (fotoPublicacion && fotoPublicacion.type.startsWith('video/')) {
 
           
           <div className="muro">
-            {esPropioPerfil && (
+           {(esPropioPerfil || esAmigo) ? (
               <>
                 <h3>Muro</h3>
                 <textarea
@@ -266,7 +365,8 @@ if (fotoPublicacion && fotoPublicacion.type.startsWith('video/')) {
 
                 <button onClick={handlePublicar}>Publicar</button>
               </>
-            )}
+             ) : null}
+            
 
             <div className="publicaciones">
               {publicaciones.map((publi, index) => (
@@ -310,23 +410,36 @@ if (fotoPublicacion && fotoPublicacion.type.startsWith('video/')) {
                   </div>
 
                   <div className="comentarios">
-                    {Array.isArray(publi.Comentarios) && publi.Comentarios.length > 0 ? (
-                      publi.Comentarios.map((c: any, idx: number) => (
-                        <div key={idx} className="comentario">
-                          {c.Usuario?.fotoPerfil && (
-                            <img
-                              src={c.Usuario.fotoPerfil}
-                              alt="comentador"
-                              className="comentario-foto"
-                            />
-                          )}
-                          <strong>{c.Usuario?.nombre || 'Anon'}:</strong> {c.contenido}
-                        </div>
-                      ))
-                    ) : (
-                      <div className="comentario-vacio">Sé el primero en comentar 🗨️</div>
-                    )}
-                  </div>
+  {Array.isArray(publi.Comentarios) && publi.Comentarios.length > 0 ? (
+    publi.Comentarios.map((c: any, idx: number) => (
+      <div
+        key={idx}
+        className={`comentario ${c.usuarioId === Number(usuarioId) ? 'comentario-propio' : ''}`}
+      >
+        {c.Usuario?.fotoPerfil && (
+          <img
+            src={c.Usuario.fotoPerfil}
+            alt="comentador"
+            className="comentario-foto"
+          />
+        )}
+        <strong>{c.Usuario?.nombre || 'Anon'}:</strong> {c.contenido}
+
+        {c.usuarioId === Number(usuarioId) && (
+          <button
+            className="btn-eliminar-comentario"
+            onClick={() => handleEliminarComentario(c.id, publi.id)}
+          >
+            🗑️
+          </button>
+        )}
+      </div>
+    ))
+  ) : (
+    <div className="comentario-vacio">Sé el primero en comentar 🗨️</div>
+  )}
+</div>
+
 
                   <div className="formulario-comentario">
                     <input
@@ -351,6 +464,12 @@ if (fotoPublicacion && fotoPublicacion.type.startsWith('video/')) {
             </div>
           </div>
         </div>
+        {videoAgrandado && (
+  <div className="modal-video" onClick={() => setVideoAgrandado(null)}>
+    <video src={videoAgrandado} controls autoPlay />
+  </div>
+)}
+
       </>
     );
   };

@@ -16,6 +16,8 @@ const AceptacionesPage: React.FC = () => {
   const [cantidadesEditadas, setCantidadesEditadas] = useState<{ [key: number]: number }>({});
   const usuarioId = localStorage.getItem('usuarioId') ?? '';
   const esPremium = localStorage.getItem('esPremium') === 'true';
+  const [filtroFecha, setFiltroFecha] = useState<'futuros' | 'pasados' | 'todos'>('futuros');
+
 
   const navigate = useNavigate();
  const formatearFechaHora = (fecha: string) => {
@@ -108,6 +110,14 @@ const obtenerNombreMes = (mes: string) => {
   const toggleExpand = (id: number) => {
     setExpandedId(expandedId === id ? null : id);
   };
+const hoy = new Date();
+
+const partidosFiltrados = partidosConAceptaciones.filter((partido) => {
+  const fechaPartido = new Date(`${partido.fecha}T${partido.hora}`);
+  if (filtroFecha === 'futuros') return fechaPartido >= hoy;
+  if (filtroFecha === 'pasados') return fechaPartido < hoy;
+  return true; // 'todos'
+});
 
   return (
     <div>
@@ -117,10 +127,20 @@ const obtenerNombreMes = (mes: string) => {
         <div className="contenedor">
           <h2 className="titulo">✅ Aceptaciones de jugadores</h2>
 
+          <div className="filtros-fecha">
+  <button onClick={() => setFiltroFecha('futuros')} className={filtroFecha === 'futuros' ? 'activo' : ''}>📅 Próximos</button>
+  <button onClick={() => setFiltroFecha('pasados')} className={filtroFecha === 'pasados' ? 'activo' : ''}>🕒 Antiguos</button>
+  <button onClick={() => setFiltroFecha('todos')} className={filtroFecha === 'todos' ? 'activo' : ''}>📋 Todos</button>
+</div>
+
+
           {partidosConAceptaciones.length === 0 ? (
             <p className="mensaje">No hay jugadores que hayan aceptado tus invitaciones aún.</p>
           ) : (
-            partidosConAceptaciones.map((partido: any) => {
+
+            
+            partidosFiltrados.map((partido: any) => {
+
               const cantidadJugadores = cantidadesEditadas[partido.id] ?? partido.cantidadJugadores ?? 0;
               const confirmados = partido.usuariosAceptaron.filter((u: any) => u.estado?.trim() === 'confirmado').length;
               const total = cantidadJugadores;
@@ -159,30 +179,31 @@ const obtenerNombreMes = (mes: string) => {
                       </div>
                       <p className="detalle-chico">✅ Confirmados: {confirmados}/{cantidadJugadores} ({porcentaje}%)</p>
                       {soyOrganizador && (
-                        <form
-                          onSubmit={(e) => {
-                            e.preventDefault();
-                            const input = e.currentTarget.elements.namedItem('cantidad') as HTMLInputElement;
-                            const nuevaCantidad = Number(input.value);
-                            actualizarCantidadJugadores(partido.id, nuevaCantidad);
-                            setCantidadesEditadas((prev) => ({ ...prev, [partido.id]: nuevaCantidad }));
-                          }}
-                          className="form-editar-cantidad"
-                        >
-                          <label className="form-label">✏️ Jugadores necesarios:</label>
-                          <input
-                            className="input-cantidad"
-                            name="cantidad"
-                            type="number"
-                            value={cantidadJugadores}
-                            min={confirmados}
-                            onChange={(e) => {
-                              const value = Number(e.target.value);
-                              setCantidadesEditadas((prev) => ({ ...prev, [partido.id]: value }));
-                            }}
-                          />
-                          <button type="submit" className="boton-accion">Guardar</button>
-                        </form>
+                     <form
+  onSubmit={(e) => {
+    e.preventDefault();
+    const input = e.currentTarget.elements.namedItem('cantidad') as HTMLInputElement;
+    const nuevaCantidad = Number(input.value);
+    actualizarCantidadJugadores(partido.id, nuevaCantidad);
+    setCantidadesEditadas((prev) => ({ ...prev, [partido.id]: nuevaCantidad }));
+  }}
+  className="form-editar-cantidad-horizontal"
+>
+  <label className="form-label">✏️</label>
+  <input
+    className="input-cantidad-estilizada"
+    name="cantidad"
+    type="number"
+    value={cantidadJugadores}
+    min={confirmados}
+    onChange={(e) => {
+      const value = Number(e.target.value);
+      setCantidadesEditadas((prev) => ({ ...prev, [partido.id]: value }));
+    }}
+  />
+  <button type="submit" className="boton-guardar-estilizado">Guardar</button>
+</form>
+
                       )}
                     </div>
                     <span className="icono" onClick={() => toggleExpand(partido.id)}>{isExpanded ? <FiChevronUp /> : <FiChevronDown />}</span>

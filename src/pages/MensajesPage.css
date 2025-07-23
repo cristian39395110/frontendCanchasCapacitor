@@ -148,11 +148,29 @@
   cursor: pointer;
   box-sizing: border-box;
 }
+.message-bubble.no-leido {
+  background-color: #e6f2ff;
+  border-left: 4px solid #3b82f6;
+}
 
 .chat-placeholder {
   margin: auto;
   text-align: center;
   color: #999;
+
+  .delete-icon {
+  font-size: 14px;
+  margin-top: 4px;
+  text-align: right;
+  cursor: pointer;
+  color: #888;
+  float: right;
+}
+
+.delete-icon:hover {
+  color: red;
+}
+
 }
 @media (prefers-color-scheme: dark) {
   body {
