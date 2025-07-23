@@ -250,6 +250,17 @@ body {
   align-items: center;
   transition: background-color 0.2s ease;
 }
+.btn-eliminar-comentario {
+  background: transparent;
+  border: none;
+  color: red;
+  font-size: 1rem;
+  margin-left: 8px;
+  cursor: pointer;
+}
+.btn-eliminar-comentario:hover {
+  color: darkred;
+}
 
 .boton-cerrar-video:hover {
   background-color: rgba(255, 255, 255, 0.3);

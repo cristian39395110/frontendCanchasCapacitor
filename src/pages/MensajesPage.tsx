@@ -5,6 +5,14 @@
     import { socket } from '../utils/socket';
     import { useParams } from 'react-router-dom';
     import { v4 as uuidv4 } from 'uuid';
+    import { PushNotifications } from '@capacitor/push-notifications';
+    
+import { useNavigate } from 'react-router-dom'; // ya tenés que usar esto arriba
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import ModalConfirmar from '../components/ModalConfirmar';
+
+
 
 
 
@@ -49,6 +57,29 @@ import { Keyboard } from '@capacitor/keyboard';
       const tipoChatRef = useRef<'usuario' | 'partido' | null>(null);
       const [usuariosConMensajes, setUsuariosConMensajes] = useState<number[]>([]);
 const [partidosConMensajes, setPartidosConMensajes] = useState<number[]>([]);
+
+const [mostrarModal, setMostrarModal] = useState(false);
+const [accionEliminar, setAccionEliminar] = useState<() => void>(() => () => {});
+
+
+const navigate = useNavigate();
+
+useEffect(() => {
+  const listener = PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
+    const data = notification.notification.data;
+
+    // Solo si es una notificación del tipo "organizador"
+    if (data?.tipo === 'organizador' && data.partidoId) {
+      console.log('📲 Notificación FCM tocada - partidoId:', data.partidoId);
+      navigate(`/chat/${data.partidoId}`);
+    }
+  });
+
+  return () => {
+    listener.then(unsub => unsub.remove());
+  };
+}, []);
+
 
 
 useEffect(() => {
@@ -416,7 +447,18 @@ useEffect(() => {
   };
 }, []);
 
+const eliminarMensaje = async (mensajeId: number) => {
+  try {
+   await fetch(`${API_URL}/api/mensajes/eliminar/${mensajeId}?usuarioId=${usuarioId}`, {
+  method: 'DELETE'
+});
 
+
+    setMensajes(prev => prev.filter(m => m.id !== mensajeId));
+  } catch (err) {
+    console.error('❌ Error al eliminar mensaje:', err);
+  }
+};
       return (
         <div>
           <Navbar />
@@ -463,7 +505,58 @@ useEffect(() => {
             <div className="chat-window">
               {usuarioSeleccionado ? (
                 <>
-                  <div className="chat-header">{usuarioSeleccionado.nombre}</div>
+                  <div className="chat-header">
+  {usuarioSeleccionado.nombre}
+<button
+  onClick={() => {
+    setAccionEliminar(() => async () => {
+    if (tipoChat === 'usuario' && usuarioSeleccionado) {
+      await fetch(`${API_URL}/api/mensajes/conversacion/${usuarioId}/${usuarioSeleccionado.id}`, {
+        method: 'DELETE',
+      });
+      // 👇 Eliminar del estado usuarios (opcional)
+      setUsuarios(prev => prev.filter(u => u.id !== usuarioSeleccionado.id));
+    } else if (tipoChat === 'partido' && partidoSeleccionadoId) {
+     await fetch(`${API_URL}/api/mensajes/partido/${partidoSeleccionadoId}?usuarioId=${usuarioId}`, {
+  method: 'DELETE'
+});
+
+      // 👇 Eliminar del estado de partidos
+      setPartidos(prev => prev.filter(p => p.id !== partidoSeleccionadoId));
+    }
+
+    setMensajes([]);
+    toast.success('✅ Chat eliminado');
+    setMostrarModal(false);
+    setUsuarioSeleccionado(null);
+    setPartidoSeleccionadoId(null);
+    setTipoChat(null);
+  });
+    setMostrarModal(true);
+  }}
+  style={{
+    marginLeft: '10px',
+    background: 'transparent',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '1.2rem'
+  }}
+  title="Eliminar chat completo"
+>
+  🗑️
+</button>
+
+{mostrarModal && (
+  <ModalConfirmar
+    texto="¿Eliminar todo el chat?"
+    onConfirmar={accionEliminar}
+    onCancelar={() => setMostrarModal(false)}
+  />
+)}
+
+
+</div>
+
                   <div className="chat-messages" ref={mensajesRef}>
      {mensajes.map((msg, i) => {
  const esMio = tipoChatRef.current === 'usuario'
@@ -474,16 +567,26 @@ useEffect(() => {
   const contenido = tipoChat === 'usuario' ? msg.contenido : msg.mensaje;
 
   const esUltimo = i === mensajes.length - 1; // ✅ Detecta el último mensaje
+  
+
 
   return (
     <div
-      key={i}
-      className={`message-bubble ${esMio ? 'sent' : 'received'}`}
-      ref={esUltimo ? mensajesRef : null} // ✅ Solo el último mensaje tiene el ref
-    >
-      <div>{contenido}</div>
-      <small className="message-date">{formatearFecha(msg.createdAt || msg.fecha)}</small>
-    </div>
+  key={i}
+  className={`message-bubble ${esMio ? 'sent' : 'received'} ${!msg.leido ? 'no-leido' : ''}`}
+  ref={esUltimo ? mensajesRef : null}
+  onContextMenu={(e) => {
+    e.preventDefault();
+    if (window.confirm('¿Eliminar este mensaje?')) {
+      
+      eliminarMensaje(msg.id);
+    }
+  }}
+>
+  <div>{contenido}</div>
+  <small className="message-date">{formatearFecha(msg.createdAt || msg.fecha)}</small>
+</div>
+
   );
 })}
 

@@ -264,10 +264,42 @@ ref={(el) => {
     {publi.Comentarios?.map((c: any, idx: number) => (
       <div key={idx} className="comentario">
         <strong>{c.Usuario?.nombre || 'Anon'}:</strong> {c.contenido}
+
+        {/* Botón eliminar solo si el comentario es del usuario actual */}
+        {c.usuarioId === Number(usuarioId) && (
+          <button
+            className="btn-eliminar-comentario"
+            onClick={async () => {
+              try {
+              await fetch(`${API_URL}/api/publicaciones/comentarios/${c.id}?usuarioId=${usuarioId}`, {
+  method: 'DELETE'
+});
+
+                setPublicaciones(prev =>
+                  prev.map(publiAnterior =>
+                    publiAnterior.id === publi.id
+                      ? {
+                          ...publiAnterior,
+                          Comentarios: publiAnterior.Comentarios.filter(
+                            (com: any) => com.id !== c.id
+                          ),
+                        }
+                      : publiAnterior
+                  )
+                );
+              } catch (err) {
+                console.error('Error al eliminar comentario:', err);
+              }
+            }}
+          >
+            🗑️
+          </button>
+        )}
       </div>
     ))}
   </div>
 )}
+
 
 
               <div className="formulario-comentario">

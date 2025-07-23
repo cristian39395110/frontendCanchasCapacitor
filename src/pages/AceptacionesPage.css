@@ -196,6 +196,24 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+.filtros-fecha {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.filtros-fecha button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #ddd;
+  cursor: pointer;
+  font-weight: bold;
+}
+.filtros-fecha button.activo {
+  background: #007bff;
+  color: white;
+}
+
 .boton-accion:active {
   transform: translateY(0);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
@@ -206,6 +224,43 @@
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
+}
+.form-editar-cantidad-horizontal {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.input-cantidad-estilizada {
+  width: 80px;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.input-cantidad-estilizada:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 4px #007bff88;
+}
+
+.boton-guardar-estilizado {
+  padding: 6px 14px;
+  background-color: #007bff;
+  border: none;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.boton-guardar-estilizado:hover {
+  background-color: #005dc4;
 }
 
 

@@ -17,48 +17,61 @@ const BottomNavbar: React.FC<BottomNavbarProps> = ({ mensajesNoLeidos, invitacio
   const [mostrarModal, setMostrarModal] = useState(false);
   const [solicitudes, setSolicitudes] = useState<any[]>([]);
   const [, setNuevasPublicaciones] = useState(0);
-  const [, setNotificacionesNoLeidas] = useState(0);
+ 
+  const [notificacionesNoLeidas, setNotificacionesNoLeidas] = useState(0);
+
   const [notificaciones, setNotificaciones] = useState<any[]>([]);
 
+
+  const obtenerNotificaciones = async () => {
+  try {
+    const res = await fetch(`${API_URL}/api/envio-notificaciones/${usuarioId}`);
+    const data = await res.json();
+    setNotificaciones(data);
+
+    const noLeidas = data.filter((n: any) => !n.leida).length;
+    setNotificacionesNoLeidas(noLeidas);
+  } catch (err) {
+    console.error('❌ Error al obtener notificaciones:', err);
+  }
+};
+ useEffect(() => {
+  const handleEsc = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      setMostrarModal(false);
+    }
+  };
+  window.addEventListener('keydown', handleEsc);
+  return () => window.removeEventListener('keydown', handleEsc);
+}, []);
 
 useEffect(() => {
   if (!usuarioId) return;
 
   socket.emit('join', `usuario-${usuarioId}`);
 
-  socket.on('nuevaNotificacion', (nueva) => {
-    console.log('🔔 Notificación recibida por socket:', nueva);
-
-    setNotificaciones((prev) => [nueva, ...prev]);
-    setNotificacionesNoLeidas((prev) => prev + 1);
+  const manejarNotificacion = async (nueva: any) => {
+    console.log('🔔 Notificación recibida:', nueva);
     toast.info(nueva.mensaje);
-  });
 
-  return () => {
-    socket.off('nuevaNotificacion');
-  };
-}, [usuarioId]);
-
-
-useEffect(() => {
-  if (!usuarioId) return;
-
-  const fetchNotificaciones = async () => {
     try {
       const res = await fetch(`${API_URL}/api/envio-notificaciones/${usuarioId}`);
       const data = await res.json();
+      console.log('📦 Notificaciones actualizadas:', data);
       setNotificaciones(data);
 
       const noLeidas = data.filter((n: any) => !n.leida).length;
       setNotificacionesNoLeidas(noLeidas);
     } catch (err) {
-      console.error('❌ Error al obtener notificaciones:', err);
+      console.error('❌ Error al actualizar notificaciones:', err);
     }
   };
 
-  fetchNotificaciones();
-  const intervalo = setInterval(fetchNotificaciones, 15000);
-  return () => clearInterval(intervalo);
+  socket.on('nuevaNotificacion', manejarNotificacion);
+
+  return () => {
+    socket.off('nuevaNotificacion', manejarNotificacion);
+  };
 }, [usuarioId]);
 
 
@@ -70,6 +83,7 @@ useEffect(() => {
     try {
       const res = await fetch(`${API_URL}/api/publicaciones/nuevas/${usuarioId}`);
       const data = await res.json();
+      console.log(data)
       setNuevasPublicaciones(data.nuevas || 0);
     } catch (err) {
       console.error('❌ Error al obtener nuevas publicaciones', err);
@@ -118,10 +132,13 @@ const cancelarSolicitud = async (usuarioId: number, amigoId: number) => {
 };
 
 
-  const toggleModal = () => {
-    if (!mostrarModal) obtenerSolicitudes();
-    setMostrarModal(!mostrarModal);
-  };
+const toggleModal = () => {
+  if (!mostrarModal) {
+    obtenerSolicitudes();
+    obtenerNotificaciones(); // ✅ ahora también carga notificaciones viejas
+  }
+  setMostrarModal(!mostrarModal);
+};
 
   return (
     <>
@@ -144,9 +161,12 @@ const cancelarSolicitud = async (usuarioId: number, amigoId: number) => {
         <button onClick={toggleModal} className="bottom-button">
           <FaUserFriends />
           <span>Amigos</span>
-          {solicitudes.length > 0 && (
-            <span className="badge-bottom">{solicitudes.length}</span>
-          )}
+       {(solicitudes.length > 0 || notificacionesNoLeidas > 0) && (
+  <span className="badge-bottom">
+    {solicitudes.length + notificacionesNoLeidas}
+  </span>
+)}
+
         </button>
       </div>
 
@@ -160,9 +180,11 @@ const cancelarSolicitud = async (usuarioId: number, amigoId: number) => {
         <p>No tenés nuevas notificaciones</p>
       ) : (
         notificaciones.map((n) => (
-          <div key={n.id} className="solicitud-item">
+         <div key={n.id} className={`solicitud-item ${n.leida ? 'leida' : 'no-leida'}`}>
+
            <img
-  src={n.foto ? n.foto : '/default-profile.png'}
+src={n.emisor?.fotoPerfil || '/default-profile.png'}
+
   alt="perfil"
   className="foto-solicitud"
   onClick={async () => {
@@ -170,6 +192,11 @@ const cancelarSolicitud = async (usuarioId: number, amigoId: number) => {
       await fetch(`${API_URL}/api/envio-notificaciones/marcar-leida/${n.id}`, {
         method: 'PATCH',
       });
+      setNotificaciones(prev =>
+  prev.map(notif =>
+    notif.id === n.id ? { ...notif, leida: true } : notif
+  )
+);
       navigate(`/perfil/${n.emisorId}`);
       setMostrarModal(false);
     } catch (err) {
@@ -186,30 +213,48 @@ const cancelarSolicitud = async (usuarioId: number, amigoId: number) => {
             <span className="nombre-solicitante">{n.mensaje}</span>
 
             <div className="acciones-mini">
-              {n.tipo === 'solicitud' && (
-                <>
-                  <button
-                    onClick={async () => {
-                      await fetch(`${API_URL}/api/envio-notificaciones/marcar-leida/${n.id}`, {
-                        method: 'PATCH',
-                      });
-                      await aceptarSolicitud(n.usuarioId, n.emisorId);
-                    }}
-                  >
-                    ✅
-                  </button>
-                  <button
-                    onClick={async () => {
-                      await fetch(`${API_URL}/api/envio-notificaciones/marcar-leida/${n.id}`, {
-                        method: 'PATCH',
-                      });
-                      await cancelarSolicitud(n.usuarioId, n.emisorId);
-                    }}
-                  >
-                    ❌
-                  </button>
-                </>
-              )}
+{n.tipo === 'solicitud' ? (
+  !n.aceptada ? (
+    <>
+      <button
+        onClick={async () => {
+          await fetch(`${API_URL}/api/envio-notificaciones/marcar-leida/${n.id}`, {
+            method: 'PATCH',
+          });
+
+          await aceptarSolicitud(n.usuarioId, n.emisorId);
+
+       setNotificaciones((prev) =>
+  prev.filter((notif) => notif.id !== n.id)
+);
+
+
+          toast.success('✅ ¡Ahora son amigos!');
+        }}
+      >
+        ✅
+      </button>
+      <button
+        onClick={async () => {
+          await fetch(`${API_URL}/api/envio-notificaciones/marcar-leida/${n.id}`, {
+            method: 'PATCH',
+          });
+
+          await cancelarSolicitud(n.usuarioId, n.emisorId);
+
+         setNotificaciones((prev) =>
+  prev.filter((notif) => notif.id !== n.id)
+);
+
+        }}
+      >
+        ❌
+      </button>
+    </>
+  ) : (
+    <span className="estado-amigo">✅ Ya son amigos</span>
+  )
+) : null}
 
               {(n.tipo === 'comentario' || n.tipo === 'like') && (
                 <button
