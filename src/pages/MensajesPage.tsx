@@ -64,6 +64,12 @@ const [accionEliminar, setAccionEliminar] = useState<() => void>(() => () => {})
 
 const navigate = useNavigate();
 
+const reproducirSonido = () => {
+  const audio = new Audio('/sonidos/notifi.mp3'); // ⚠️ Ruta pública
+  audio.play().catch(e => console.warn('🔇 Sonido bloqueado por navegador', e));
+};
+
+
 useEffect(() => {
   const listener = PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
     const data = notification.notification.data;
@@ -372,6 +378,10 @@ const recibirMensaje = (nuevo: Mensaje) => {
         return [...prev, nuevo];
       });
     } else {
+      reproducirSonido();
+
+      window.dispatchEvent(new CustomEvent('nuevoMensaje', { detail: { tipo: 'usuario', usuarioId: nuevo.emisorId } }));
+
       setUsuariosConMensajes(prev => {
         if (!prev.includes(emisor)) return [...prev, emisor];
         return prev;
@@ -399,6 +409,10 @@ const recibirMensaje = (nuevo: Mensaje) => {
       return [...prev, { ...nuevo }];
     });
   } else {
+    reproducirSonido();
+
+    window.dispatchEvent(new CustomEvent('nuevoMensaje', { detail: { tipo: 'partido', partidoId: nuevo.partidoId } }));
+
     // 👇 SOLO pintamos en azul el partido si no es el chat actual
     setPartidosConMensajes(prev => {
       if (!prev.includes(nuevo.partidoId)) return [...prev, nuevo.partidoId];
@@ -575,13 +589,15 @@ const eliminarMensaje = async (mensajeId: number) => {
   key={i}
   className={`message-bubble ${esMio ? 'sent' : 'received'} ${!msg.leido ? 'no-leido' : ''}`}
   ref={esUltimo ? mensajesRef : null}
-  onContextMenu={(e) => {
-    e.preventDefault();
-    if (window.confirm('¿Eliminar este mensaje?')) {
-      
-      eliminarMensaje(msg.id);
-    }
-  }}
+ onContextMenu={(e) => {
+  e.preventDefault();
+  if (esMio && window.confirm('¿Eliminar este mensaje?')) {
+    eliminarMensaje(msg.id);
+  } else if (!esMio) {
+    toast.error('❌ Solo podés eliminar tus propios mensajes');
+  }
+}}
+  
 >
   <div>{contenido}</div>
   <small className="message-date">{formatearFecha(msg.createdAt || msg.fecha)}</small>

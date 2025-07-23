@@ -50,22 +50,33 @@ useEffect(() => {
 
   socket.emit('join', `usuario-${usuarioId}`);
 
-  const manejarNotificacion = async (nueva: any) => {
-    console.log('🔔 Notificación recibida:', nueva);
-    toast.info(nueva.mensaje);
+ const manejarNotificacion = async (nueva: any) => {
+  console.log('🔔 Notificación recibida:', nueva);
+  toast.info(nueva.mensaje);
 
+  // 🔄 Actualizar notificaciones
+  try {
+    const res = await fetch(`${API_URL}/api/envio-notificaciones/${usuarioId}`);
+    const data = await res.json();
+    setNotificaciones(data);
+    const noLeidas = data.filter((n: any) => !n.leida).length;
+    setNotificacionesNoLeidas(noLeidas);
+  } catch (err) {
+    console.error('❌ Error al actualizar notificaciones:', err);
+  }
+
+  // 📥 Si es una solicitud de amistad nueva, actualizar solicitudes también
+  if (['solicitud', 'amistad'].includes(nueva.tipo)) {
     try {
-      const res = await fetch(`${API_URL}/api/envio-notificaciones/${usuarioId}`);
+      const res = await fetch(`${API_URL}/api/amigos/solicitudes/${usuarioId}`);
       const data = await res.json();
-      console.log('📦 Notificaciones actualizadas:', data);
-      setNotificaciones(data);
-
-      const noLeidas = data.filter((n: any) => !n.leida).length;
-      setNotificacionesNoLeidas(noLeidas);
+      setSolicitudes(data);
     } catch (err) {
-      console.error('❌ Error al actualizar notificaciones:', err);
+      console.error('❌ Error al actualizar solicitudes de amistad:', err);
     }
-  };
+  }
+};
+
 
   socket.on('nuevaNotificacion', manejarNotificacion);
 

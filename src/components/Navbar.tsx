@@ -93,7 +93,7 @@ if (token) {
   .then(data => setAceptaciones(data.length));
 */
 
-    fetch(`${API_URL}/api/solicitudes/${usuarioId}`)
+  fetch(`${API_URL}/api/solicitudes/${usuarioId}?estado=pendiente`)
       .then(res => res.json())
       .then(data => setInvitaciones(data.length));
 
@@ -126,7 +126,7 @@ if (token) {
 
     socket.on('actualizar-notificaciones', (data: { receptorId: number }) => {
       if (Number(usuarioId) === data.receptorId) {
-        fetch(`${API_URL}/api/solicitudes/${usuarioId}`)
+        fetch(`${API_URL}/api/solicitudes/${usuarioId}?estado=pendiente`)
           .then(res => res.json())
           .then(data => setInvitaciones(data.length));
       }
