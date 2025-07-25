@@ -6,6 +6,11 @@ import { suscribirseANotificaciones, desuscribirseANotificaciones } from '../uti
 import { io } from 'socket.io-client';
 import './Navbar.css';
 import logoMatchClub from '../assets/ChatGPT Image 20 jul 2025, 13_34_06.png'; // ajustá el path si está en otra carpeta
+import { Capacitor } from '@capacitor/core';
+import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
+
 
 
 
@@ -21,9 +26,9 @@ const Navbar: React.FC = () => {
   const [suscrito, setSuscrito] = useState(false);
   const [cargando, setCargando] = useState(true);
   const [invitaciones, setInvitaciones] = useState(0);
-  const [mensajesNoLeidos, setMensajesNoLeidos] = useState(0);
+
   const [mostrarMenu, setMostrarMenu] = useState(false);
-  const usuarioId = localStorage.getItem('usuarioId');
+ 
   const [aceptaciones] = useState(0);
   const [esAdmin, setEsAdmin] = useState(false);
   const [esId11 , setEsId11] = useState(false);
@@ -32,6 +37,67 @@ const Navbar: React.FC = () => {
 
 
 const [esPremium, setEsPremium] = useState(false);
+const [usuarioId, setUsuarioId] = useState<string | null>(null);
+const [usuarioCargado, setUsuarioCargado] = useState(false);
+const [mensajesNoLeidos, setMensajesNoLeidos] = useState(0);
+
+
+
+
+
+
+
+
+
+useEffect(() => {
+  if (!usuarioCargado || !usuarioId) return;
+
+  socket.emit('join', `noti-${usuarioId}`);
+
+  socket.on('alertaVisual', (data: {
+    tipo: 'usuario' | 'partido';
+    partidoId?: number;
+    nombre: string;
+    mensaje: string;
+  }) => {
+
+
+    if (data.tipo === 'usuario') {
+      toast.info(`💬 ${data.nombre} te envió un mensaje`);
+    } else if (data.tipo === 'partido') {
+      toast.info(`⚽ ${data.nombre} escribió en el partido`);
+    }
+   new Audio('/sonidos/notifi.mp3').play().catch(err => console.error('Error al reproducir sonido:', err));
+
+    // 🔄 Actualizamos contador global
+    fetch(`${API_URL}/api/mensajes/no-leidos/${usuarioId}`)
+      .then(res => res.json())
+      .then(data =>{ 
+        console.log("cavernicola",data)
+        setMensajesNoLeidos(data.total)});
+  });
+
+  return () => {
+    socket.off('alertaVisual');
+  };
+}, [usuarioId, usuarioCargado]);
+
+
+useEffect(() => {
+  const obtenerUsuarioId = async () => {
+    if (Capacitor.isNativePlatform()) {
+      const result = await Preferences.get({ key: 'usuarioId' });
+      setUsuarioId(result.value);
+    } else {
+      const local = localStorage.getItem('usuarioId');
+      setUsuarioId(local);
+    }
+    setUsuarioCargado(true); // 💡 cuando terminamos de intentar cargar
+  };
+
+  obtenerUsuarioId();
+}, []);
+
 
 useEffect(() => {
   const esPremiumLocal = localStorage.getItem('esPremium') === 'true';
@@ -45,7 +111,7 @@ useEffect(() => {
 
 
   useEffect(() => {
-    if (!usuarioId) return;
+    if (!usuarioCargado || !usuarioId) return;
 
  const token = localStorage.getItem('token');
 if (token) {
@@ -91,11 +157,13 @@ if (token) {
 /*fetch(`${API_URL}/api/solicitudes/aceptadas/${usuarioId}`)
   .then(res => res.json())
   .then(data => setAceptaciones(data.length));
-*/
-
+*/console.log("🧠 Usuario ID:", usuarioId);
+console.log("📡 Buscando invitaciones pendientes...");
   fetch(`${API_URL}/api/solicitudes/${usuarioId}?estado=pendiente`)
       .then(res => res.json())
-      .then(data => setInvitaciones(data.length));
+      .then(data => {
+        console.log("xvxvxvxv",data)
+        setInvitaciones(data.length)});
 
     fetch(`${API_URL}/api/mensajes/no-leidos/${usuarioId}`)
       .then(res => res.json())
@@ -105,44 +173,39 @@ if (token) {
   const IconButton = ({ onClick, icon, label }: { onClick: () => void; icon: JSX.Element; label: string }) => (
   <button className="icon-button" onClick={onClick} title={label}>
     {icon}
-    {label.includes('Chat') && mensajesNoLeidos > 0 && (
-      <span className="badge">{mensajesNoLeidos}</span>
-    )}
+
     {label.includes('Invitaciones') && invitaciones > 0 && (
       <span className="badge">{invitaciones}</span>
     )}
     {label.includes('Aceptaciones') && aceptaciones > 0 && (
       <span className="badge">{aceptaciones}</span>
     )}
+    {label.includes('Chat') && mensajesNoLeidos > 0 && (
+      <span className="badge">{mensajesNoLeidos}</span>
+    )}
   </button>
 );
 
 
 
-  useEffect(() => {
-    if (!usuarioId) return;
 
-    socket.emit('join', usuarioId);
+useEffect(() => {
+  if (!usuarioCargado || !usuarioId) return;
 
-    socket.on('actualizar-notificaciones', (data: { receptorId: number }) => {
-      if (Number(usuarioId) === data.receptorId) {
-        fetch(`${API_URL}/api/solicitudes/${usuarioId}?estado=pendiente`)
-          .then(res => res.json())
-          .then(data => setInvitaciones(data.length));
-      }
-    });
+  socket.emit('join', usuarioId); // ✅ Mantenelo si usás esto para actualizaciones o invitaciones
 
-    socket.on('mensajeNuevo', () => {
-      fetch(`${API_URL}/api/mensajes/no-leidos/${usuarioId}`)
+  socket.on('actualizar-notificaciones', (data: { receptorId: number }) => {
+    if (Number(usuarioId) === data.receptorId) {
+      fetch(`${API_URL}/api/solicitudes/${usuarioId}?estado=pendiente`)
         .then(res => res.json())
-        .then(data => setMensajesNoLeidos(data.total));
-    });
+        .then(data => setInvitaciones(data.length));
+    }
+  });
 
-    return () => {
-      socket.off('actualizar-notificaciones');
-      socket.off('mensajeNuevo');
-    };
-  }, [usuarioId]);
+  return () => {
+    socket.off('actualizar-notificaciones');
+  };
+}, [usuarioId, usuarioCargado]);
 
   const handleToggleNotificaciones = () => {
     if (!usuarioId) return alert('Iniciá sesión primero');
@@ -199,6 +262,8 @@ useEffect(() => {
 
 
 
+
+
   return (
     <nav className="navbar">
  <div className="navbar-topbar">
@@ -220,7 +285,12 @@ useEffect(() => {
     <IconButton onClick={() => navigate('/juegonuevo')} icon={<FaPlus />} label="Nuevo" />
   )}
   <IconButton onClick={() => navigate('/buscar-jugadores')} icon={<FaSearch />} label="Buscar" />
-  <IconButton onClick={() => navigate('/chat')} icon={<FaComments />} label="Chat" />
+ <IconButton
+  onClick={() => navigate('/chat')}
+  icon={<FaComments />}
+  label={`Chat${mensajesNoLeidos > 0 ? ` (${mensajesNoLeidos})` : ''}`}
+/>
+
   <IconButton onClick={() => navigate('/aceptaciones')} icon={<FaFutbol  />} label="Aceptaciones" />
   <IconButton onClick={() => navigate('/invitaciones')} icon={<FaEnvelopeOpenText />} label="Invitaciones" />
   <IconButton onClick={() => navigate('/canchas')} icon={<FaThLarge />} label="Canchas" />
@@ -316,7 +386,17 @@ useEffect(() => {
     💎 Usuario Premium
   </div>
 )}
-
+<ToastContainer
+  position="top-center"
+  autoClose={4000}
+  hideProgressBar={false}
+  newestOnTop
+  closeOnClick
+  rtl={false}
+  pauseOnFocusLoss
+  draggable
+  pauseOnHover
+/>
 
     </nav>
    
