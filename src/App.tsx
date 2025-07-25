@@ -79,17 +79,16 @@ function AppInner() {
 
   // 🔔 Notificaciones push
   useEffect(() => {
-    PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
-      const data = notification.notification?.data;
+   PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
+  const data = notification.notification?.data;
+  console.log('🔔 Notificación abierta:', data);
 
-      if (data?.tipo === 'invitacion') {
-        navigate('/invitaciones');
-      } else if (data?.tipo === 'chat' && data?.usuarioId) {
-        navigate(`/chat/${data.usuarioId}`);
-      } else {
-        navigate('/');
-      }
-    });
+  if (data?.url) {
+    navigate(data.url); // Ej: "/invitaciones", "/chat/123", etc.
+  } else {
+    navigate('/');
+  }
+});
 
     const iniciarNotificaciones = async () => {
       const token = localStorage.getItem('token');
@@ -156,6 +155,7 @@ function AppInner() {
         <Route path="/chat/:usuarioId" element={<PrivateRoute><MensajesPage /></PrivateRoute>} />
         <Route path="/test-backend" element={<PrivateRoute><TestBackendPage /></PrivateRoute>} />
         <Route path="/perfil/:id" element={<PrivateRoute><PerfilUsuarioPage /></PrivateRoute>} />
+         <Route path="/chat/partido/:partidoId" element={<PrivateRoute><MensajesPage /></PrivateRoute>} />
 
           <Route path="/perfil" element={<PrivateRoute><PerfilUsuarioPage /></PrivateRoute>} />
 
