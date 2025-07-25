@@ -64,10 +64,7 @@ const [accionEliminar, setAccionEliminar] = useState<() => void>(() => () => {})
 
 const navigate = useNavigate();
 
-const reproducirSonido = () => {
-  const audio = new Audio('/sonidos/notifi.mp3'); // ⚠️ Ruta pública
-  audio.play().catch(e => console.warn('🔇 Sonido bloqueado por navegador', e));
-};
+
 
 
 useEffect(() => {
@@ -115,14 +112,18 @@ useEffect(() => {
       const usuarioId = localStorage.getItem('usuarioId');
       const mensajesRef = useRef<HTMLDivElement>(null);
       const [filtroNombre, setFiltroNombre] = useState('');
-      const formatearFecha = (fechaISO: string): string => {
-    const fecha = new Date(fechaISO);
-    return fecha.toLocaleDateString('es-AR', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
-  };
+    const formatearFecha = (fechaISO: string): string => {
+  const fecha = new Date(fechaISO);
+  return fecha.toLocaleDateString('es-AR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false // si querés 14:30 en vez de 2:30 p. m.
+  });
+};
+
 
 useEffect(() => {
   setTimeout(() => {
@@ -378,7 +379,7 @@ const recibirMensaje = (nuevo: Mensaje) => {
         return [...prev, nuevo];
       });
     } else {
-      reproducirSonido();
+  
 
       window.dispatchEvent(new CustomEvent('nuevoMensaje', { detail: { tipo: 'usuario', usuarioId: nuevo.emisorId } }));
 
@@ -409,7 +410,7 @@ const recibirMensaje = (nuevo: Mensaje) => {
       return [...prev, { ...nuevo }];
     });
   } else {
-    reproducirSonido();
+
 
     window.dispatchEvent(new CustomEvent('nuevoMensaje', { detail: { tipo: 'partido', partidoId: nuevo.partidoId } }));
 
@@ -571,18 +572,16 @@ const eliminarMensaje = async (mensajeId: number) => {
 
 </div>
 
-                  <div className="chat-messages" ref={mensajesRef}>
-     {mensajes.map((msg, i) => {
- const esMio = tipoChatRef.current === 'usuario'
-  ? msg.emisorId === Number(usuarioId)
-  : msg.usuarioId === Number(usuarioId);
+ <div className="chat-messages" ref={mensajesRef}>
+  {mensajes.map((msg, i) => {
+  const miId = Number(usuarioId);
 
+  const esMio = (tipoChat === 'usuario' && msg.emisorId === miId) ||
+                (tipoChat === 'partido' && msg.usuarioId === miId);
 
-  const contenido = tipoChat === 'usuario' ? msg.contenido : msg.mensaje;
+  const contenido = msg.contenido || msg.mensaje || '';
 
-  const esUltimo = i === mensajes.length - 1; // ✅ Detecta el último mensaje
-  
-
+  const esUltimo = i === mensajes.length - 1;
 
   return (
     <div

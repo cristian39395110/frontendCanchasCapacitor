@@ -115,6 +115,23 @@
 .franja-premium {
   animation: fadeInFranja 0.6s ease-in-out;
 }
+.modal-notificaciones {
+  padding: 1rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.notificacion-item {
+  padding: 0.5rem;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.notificacion-item:hover {
+  background-color: #f0f0f0;
+}
+
 
 @keyframes fadeInFranja {
   from {
