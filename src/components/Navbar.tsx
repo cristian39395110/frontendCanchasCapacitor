@@ -292,7 +292,12 @@ useEffect(() => {
 />
 
   <IconButton onClick={() => navigate('/aceptaciones')} icon={<FaFutbol  />} label="Aceptaciones" />
-  <IconButton onClick={() => navigate('/invitaciones')} icon={<FaEnvelopeOpenText />} label="Invitaciones" />
+ <IconButton
+  onClick={() => navigate('/invitaciones')}
+  icon={<FaEnvelopeOpenText />}
+  label={`Invitaciones${invitaciones > 0 ? ` (${invitaciones})` : ''}`}
+/>
+
   <IconButton onClick={() => navigate('/canchas')} icon={<FaThLarge />} label="Canchas" />
  
 
