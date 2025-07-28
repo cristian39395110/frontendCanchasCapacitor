@@ -11,7 +11,7 @@ interface BottomNavbarProps {
   invitaciones: number;
 }
 
-const BottomNavbar: React.FC<BottomNavbarProps> = ({ mensajesNoLeidos, invitaciones }) => {
+const BottomNavbar: React.FC<BottomNavbarProps> = ({  }) => {
   const navigate = useNavigate();
   const usuarioId = localStorage.getItem('usuarioId');
   const [mostrarModal, setMostrarModal] = useState(false);
@@ -162,11 +162,7 @@ const toggleModal = () => {
         <button onClick={() => navigate('/BuscarUsuario')} className="bottom-button">
           <FaSearch />
           <span>Buscar</span>
-          {(mensajesNoLeidos > 0 || invitaciones > 0) && (
-            <span className="badge-bottom">
-              {mensajesNoLeidos + invitaciones}
-            </span>
-          )}
+        
         </button>
 
         <button onClick={toggleModal} className="bottom-button">

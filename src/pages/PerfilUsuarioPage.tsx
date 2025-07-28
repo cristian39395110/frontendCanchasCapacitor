@@ -5,6 +5,7 @@
   import { API_URL } from '../config';
   import './PerfilPage.css';
   import { Toast } from '@capacitor/toast';
+  
 
 
   const PerfilUsuarioPage: React.FC = () => {
@@ -102,37 +103,60 @@ if (fotoPublicacion && fotoPublicacion.type.startsWith('video/')) {
     return;
   }
 }
-
+console.log("id de id  ",id)
       const formData = new FormData();
       formData.append('contenido', nuevaPublicacion);
-      formData.append('usuarioId', usuarioId || '');
+      formData.append('usuarioId', String(usuarioId));
+formData.append('perfilId', String(idPerfil)); // siempre será propio o ajeno
+
+
+
       if (fotoPublicacion) formData.append('foto', fotoPublicacion);
 
 
-      try {
-        const res = await fetch(`${API_URL}/api/publicaciones`, {
-          method: 'POST',
-          body: formData,
-        });
-        const nueva = await res.json();
-        setPublicaciones([nueva, ...publicaciones]);
-        setNuevaPublicacion('');
-        setFotoPublicacion(null);
-      } catch (err) {
-        console.error('Error al publicar', err);
-      }
+   try {
+  const res = await fetch(`${API_URL}/api/publicaciones`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    await Toast.show({ text: `❌ ${error.error || 'Error al publicar'}` });
+    return;
+  }
+
+  const nueva = await res.json();
+  setPublicaciones([nueva, ...publicaciones]);
+  setNuevaPublicacion('');
+  setFotoPublicacion(null);
+} catch (err) {
+  console.error('Error al publicar', err);
+  await Toast.show({ text: '❌ Error de red al publicar' });
+}
+
     };
 
-    const handleEliminarPublicacion = async (publicacionId: number) => {
-      try {
-        await fetch(`${API_URL}/api/publicaciones/${publicacionId}`, {
-          method: 'DELETE'
-        });
-        setPublicaciones(publicaciones.filter(p => p.id !== publicacionId));
-      } catch (err) {
-        console.error('Error al eliminar publicación', err);
-      }
-    };
+   const handleEliminarPublicacion = async (publicacionId: number) => {
+  try {
+    const res = await fetch(`${API_URL}/api/publicaciones/${publicacionId}?usuarioId=${usuarioId}`, {
+      method: 'DELETE',
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      await Toast.show({ text: `❌ ${error.error || 'No se pudo eliminar'}` });
+      return;
+    }
+
+    setPublicaciones(publicaciones.filter(p => p.id !== publicacionId));
+    await Toast.show({ text: '✅ Publicación eliminada' });
+  } catch (err) {
+    console.error('Error al eliminar publicación', err);
+    await Toast.show({ text: '❌ Error al eliminar publicación' });
+  }
+};
+
 
     const comentar = async (publicacionId: number) => {
       const contenido = comentarioTexto[publicacionId];
@@ -450,15 +474,11 @@ const cancelarSolicitud = async () => {
                     />
                     <button onClick={() => comentar(publi.id)}>Comentar</button>
                   </div>
+{(esPropioPerfil || usuarioId === String(publi.usuarioId)) && (
+  <button onClick={() => handleEliminarPublicacion(publi.id)}>🗑️ Eliminar</button>
+)}
 
-                  {esPropioPerfil && (
-                    <button
-                      onClick={() => handleEliminarPublicacion(publi.id)}
-                      className="btn-eliminar"
-                    >
-                      🗑️ Eliminar
-                    </button>
-                  )}
+
                 </div>
               ))}
             </div>

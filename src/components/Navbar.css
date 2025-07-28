@@ -1,6 +1,6 @@
 .navbar {
   background: #1F2937;
-     z-index: 1000;
+     z-index: 2000;
   color: white;
   padding: 10px;
   display: flex;
@@ -130,6 +130,18 @@
 
 .notificacion-item:hover {
   background-color: #f0f0f0;
+}
+.vibrar-icono {
+  animation: vibrar-icono 0.4s infinite;
+}
+
+@keyframes vibrar-icono {
+  0% { transform: translate(0px, 0px) rotate(0deg); }
+  20% { transform: translate(-2px, 2px) rotate(-1deg); }
+  40% { transform: translate(-2px, -2px) rotate(1deg); }
+  60% { transform: translate(2px, 2px) rotate(0deg); }
+  80% { transform: translate(2px, -2px) rotate(1deg); }
+  100% { transform: translate(0px, 0px) rotate(0deg); }
 }
 
 

@@ -57,6 +57,9 @@ import { Keyboard } from '@capacitor/keyboard';
       const tipoChatRef = useRef<'usuario' | 'partido' | null>(null);
       const [usuariosConMensajes, setUsuariosConMensajes] = useState<number[]>([]);
 const [partidosConMensajes, setPartidosConMensajes] = useState<number[]>([]);
+const [puedeHablar, setPuedeHablar] = useState(true); // por defecto sí puede
+
+
 
 const [mostrarModal, setMostrarModal] = useState(false);
 const [accionEliminar, setAccionEliminar] = useState<() => void>(() => () => {});
@@ -64,6 +67,48 @@ const [accionEliminar, setAccionEliminar] = useState<() => void>(() => () => {})
 
 const navigate = useNavigate();
 
+// Al comienzo del componente
+const usuarioId: string | null = localStorage.getItem('usuarioId');
+
+
+
+useEffect(() => {
+  const obtenerPartidosConMensajesNoLeidos = async () => {
+    
+    try {
+      
+      const res = await fetch(`${API_URL}/api/mensajes-partido/no-leidos/${usuarioId}`);
+      const data = await res.json(); // debería ser un array de { partidoId: number }
+
+      const ids = data.map((item: any) => item.partidoId);
+      console.log('🔵 Partidos con mensajes no leídos:', ids);
+      setPartidosConMensajes(ids);
+    } catch (error) {
+      console.error('❌ Error al obtener partidos con mensajes no leídos:', error);
+    }
+  };
+
+  if (usuarioId) {
+    obtenerPartidosConMensajesNoLeidos();
+  }
+}, [usuarioId]);
+
+
+
+useEffect(() => {
+  const obtenerNoLeidos = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/mensajes-partido/no-leidos/${usuarioId}`);
+      const data = await res.json();
+      setPartidosConMensajes(data.partidosConMensajes || []);
+      console.log('🔵 Partidos con mensajes no leídos:', data.partidosConMensajes);
+    } catch (error) {
+      console.error('❌ Error al obtener mensajes no leídos:', error);
+    }
+  };
+
+  obtenerNoLeidos();
+}, []);
 
 
 
@@ -109,7 +154,7 @@ useEffect(() => {
 
 
 
-      const usuarioId = localStorage.getItem('usuarioId');
+      
       const mensajesRef = useRef<HTMLDivElement>(null);
       const [filtroNombre, setFiltroNombre] = useState('');
     const formatearFecha = (fechaISO: string): string => {
@@ -128,9 +173,9 @@ useEffect(() => {
 useEffect(() => {
   setTimeout(() => {
     if (mensajesRef.current) {
-      mensajesRef.current.scrollIntoView({ behavior: 'smooth' });
+      mensajesRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
-  }, 100); // 🔁 pequeño delay para asegurarte de que el DOM ya se pintó
+  }, 400); // 🔁 pequeño delay para asegurarte de que el DOM ya se pintó
 }, [mensajes]);
   
   useEffect(() => {
@@ -231,6 +276,9 @@ const salaPrivada = `usuario-${usuarioId}`;
   }, [usuarioIdUrl, usuarios]);
 
 
+  
+
+
       useEffect(() => {
     if (usuarioIdUrl && usuarios.length > 0) {
       const id = parseInt(usuarioIdUrl);
@@ -254,39 +302,61 @@ const salaPrivada = `usuario-${usuarioId}`;
         const data = await res.json();
         setMensajes(data);
         await fetch(`${API_URL}/api/mensajes/marcar-leido/${usuarioId}/${usuario.id}`, { method: 'PUT' });
+ setTimeout(() => {
+    const input = document.querySelector('.chat-input input');
+    if (input) input.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }, 300);
+
+
       };
 
-    const seleccionarPartido = async (partidoId: number, nombre: string) => {
-      setPartidosConMensajes(prev => prev.filter(id => id !== partidoId));
+const seleccionarPartido = async (partidoId: number, nombre: string) => {
+  try {
+    setTipoChat('partido');
+    setUsuarioSeleccionado({ id: 0, nombre });
+    setPartidoSeleccionadoId(partidoId);
 
-    try {
-      setTipoChat('partido');
-      setUsuarioSeleccionado({ id: 0, nombre });
-      setPartidoSeleccionadoId(partidoId);
+    const res = await fetch(`${API_URL}/api/mensajes-partido/partido/${partidoId}?usuarioId=${usuarioId}`);
 
-      const res = await fetch(`${API_URL}/api/mensajes-partido/partido/${partidoId}`);
-
-      if (!res.ok) {
-        console.error('Error HTTP:', res.status);
-        setMensajes([]);
-        return;
-      }
-
-      const data = await res.json();
-      if (!Array.isArray(data)) {
-        console.error('❌ Respuesta inesperada del servidor:', data);
-        setMensajes([]);
-        return;
-      }
-
-      setMensajes(data);
-          socket.emit('join-partido', partidoId);
-
-    } catch (error) {
-      console.error('❌ Error al seleccionar partido:', error);
+    if (!res.ok) {
+      console.error('Error HTTP:', res.status);
       setMensajes([]);
+      return;
     }
-  };
+
+    const data = await res.json();
+    if (!Array.isArray(data)) {
+      console.error('❌ Respuesta inesperada del servidor:', data);
+      setMensajes([]);
+      return;
+    }
+
+    // 🔵 Obtenemos mensajes leídos
+    const leidosRes = await fetch(`${API_URL}/api/mensajes-partido/leidos/${partidoId}/${usuarioId}`);
+    const { mensajeIdsLeidos } = await leidosRes.json();
+    console.log('🔵 Leídos:', mensajeIdsLeidos);
+
+    // ✅ Marcamos leídos
+    const mensajesConLeido = data.map((m: any) => ({
+      ...m,
+      leido: mensajeIdsLeidos.includes(m.id),
+    }));
+
+    setMensajes(mensajesConLeido);
+    
+
+    socket.emit('join-partido', partidoId);
+
+    await fetch(`${API_URL}/api/mensajes-partido/marcar-leido/${partidoId}/${usuarioId}`, {
+      method: 'PUT',
+    });
+
+    setPartidosConMensajes((prev) => prev.filter((id) => id !== partidoId));
+  } catch (error) {
+    console.error('❌ Error al seleccionar partido:', error);
+    setMensajes([]);
+  }
+};
 
 
       const enviarMensaje = async () => {
@@ -401,6 +471,12 @@ const recibirMensaje = (nuevo: Mensaje) => {
     tipoChatRef.current === 'partido' &&
     nuevo.partidoId === partidoSeleccionadoRef.current;
 
+    if (!puedeHablar && nuevo.partidoId === partidoSeleccionadoRef.current) {
+  console.log('⛔ Ignorado: usuario fue removido del partido');
+  return;
+}
+
+
   if (esChatActual) {
     setMensajes(prev => {
       const yaExiste = prev.some(m =>
@@ -415,10 +491,13 @@ const recibirMensaje = (nuevo: Mensaje) => {
     window.dispatchEvent(new CustomEvent('nuevoMensaje', { detail: { tipo: 'partido', partidoId: nuevo.partidoId } }));
 
     // 👇 SOLO pintamos en azul el partido si no es el chat actual
-    setPartidosConMensajes(prev => {
-      if (!prev.includes(nuevo.partidoId)) return [...prev, nuevo.partidoId];
-      return prev;
-    });
+ if (puedeHablar) {
+  setPartidosConMensajes(prev => {
+    if (!prev.includes(nuevo.partidoId)) return [...prev, nuevo.partidoId];
+    return prev;
+  });
+}
+
     console.log('📩 Mensaje de partido recibido pero NO es del chat actual', nuevo);
   }
 };
@@ -433,6 +512,27 @@ const recibirMensaje = (nuevo: Mensaje) => {
     };
   }, []);
 
+useEffect(() => {
+  if (!usuarioId) return;
+
+  // 🔵 Cargar mensajes no leídos de chats individuales
+  fetch(`${API_URL}/api/mensajes/no-leidos/${usuarioId}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.usuariosConMensajes) {
+        setUsuariosConMensajes(data.usuariosConMensajes);
+      }
+    });
+
+  // ⚽ Cargar mensajes no leídos de partidos
+  fetch(`${API_URL}/api/mensajes-partido/no-leidos/${usuarioId}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.partidosConMensajes) {
+        setPartidosConMensajes(data.partidosConMensajes);
+      }
+    });
+}, [usuarioId]);
 
 
 
@@ -474,6 +574,25 @@ const eliminarMensaje = async (mensajeId: number) => {
     console.error('❌ Error al eliminar mensaje:', err);
   }
 };
+
+const inputForzadoVisible = tipoChat === 'usuario' && !usuarioSeleccionado && usuarioIdUrl;
+useEffect(() => {
+  const verificarSiSigue = async () => {
+    if (tipoChat === 'partido') {
+      try {
+        const res = await fetch(`${API_URL}/api/partidos/sigue-en-el-partido?partidoId=${partidoSeleccionadoId}&usuarioId=${usuarioId}`);
+        const data = await res.json();
+        setPuedeHablar(data.sigue); // true o false
+      } catch (err) {
+        console.error('❌ Error al verificar estado del jugador:', err);
+        setPuedeHablar(false); // por precaución, lo bloqueamos
+      }
+    }
+  };
+
+  verificarSiSigue();
+}, [partidoSeleccionadoId]);
+
       return (
         <div>
           <Navbar />
@@ -503,25 +622,30 @@ const eliminarMensaje = async (mensajeId: number) => {
               ))}
 
               <div style={{ marginTop: '15px' }}>⚽ Chats de partidos</div>
-              {partidos.map(p => (
-              <div
-  key={p.id}
-  className={`user-chat 
-    ${partidoSeleccionadoId === p.id ? 'selected' : ''} 
-    ${partidosConMensajes.includes(p.id) ? 'nuevo-mensaje' : ''}`}
-  onClick={() => seleccionarPartido(p.id, p.nombre)}
->
+{partidos.map(p => (
+  <div
+    key={p.id}
+    className={`user-chat 
+      ${partidoSeleccionadoId === p.id ? 'selected' : ''} 
+      ${partidosConMensajes.includes(p.id) ? 'nuevo-mensaje' : ''}`}
+    onClick={() => seleccionarPartido(p.id, p.nombre)}
+  >
+    <span>{p.nombre}</span>
 
-                  <span>{p.nombre}</span>
-                </div>
-              ))}
+    {partidosConMensajes.includes(p.id) && (
+      <span className="emoji-sobrecito">📩</span>
+    )}
+  </div>
+))}
+
             </div>
 
             <div className="chat-window">
-              {usuarioSeleccionado ? (
+              {usuarioSeleccionado || inputForzadoVisible ? (
                 <>
                   <div className="chat-header">
-  {usuarioSeleccionado.nombre}
+{usuarioSeleccionado?.nombre || 'Cargando...'}
+
 <button
   onClick={() => {
     setAccionEliminar(() => async () => {
@@ -573,50 +697,73 @@ const eliminarMensaje = async (mensajeId: number) => {
 </div>
 
  <div className="chat-messages" ref={mensajesRef}>
-  {mensajes.map((msg, i) => {
+{mensajes.map((msg, i) => {
   const miId = Number(usuarioId);
-
   const esMio = (tipoChat === 'usuario' && msg.emisorId === miId) ||
                 (tipoChat === 'partido' && msg.usuarioId === miId);
-
   const contenido = msg.contenido || msg.mensaje || '';
-
   const esUltimo = i === mensajes.length - 1;
 
+  // 🔸 Mensaje de sistema
+  if (msg.tipo === 'sistema') {
+    return (
+      <div key={i} className="message-bubble sistema" ref={esUltimo ? mensajesRef : null}>
+        <em>⚠ {contenido}</em>
+        <small className="message-date">{formatearFecha(msg.createdAt || msg.fecha)}</small>
+      </div>
+    );
+  }
+
+  // 🔸 Mensaje normal (usuario o partido)
   return (
     <div
-  key={i}
-  className={`message-bubble ${esMio ? 'sent' : 'received'} ${!msg.leido ? 'no-leido' : ''}`}
-  ref={esUltimo ? mensajesRef : null}
- onContextMenu={(e) => {
-  e.preventDefault();
-  if (esMio && window.confirm('¿Eliminar este mensaje?')) {
-    eliminarMensaje(msg.id);
-  } else if (!esMio) {
-    toast.error('❌ Solo podés eliminar tus propios mensajes');
-  }
-}}
-  
->
-  <div>{contenido}</div>
-  <small className="message-date">{formatearFecha(msg.createdAt || msg.fecha)}</small>
-</div>
-
+      key={i}
+      className={`message-bubble ${esMio ? 'sent' : 'received'} ${!msg.leido ? 'no-leido' : ''}`}
+      ref={esUltimo ? mensajesRef : null}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        if (esMio && window.confirm('¿Eliminar este mensaje?')) {
+          eliminarMensaje(msg.id);
+        } else if (!esMio) {
+          toast.error('❌ Solo podés eliminar tus propios mensajes');
+        }
+      }}
+    >
+      {!esMio && tipoChat === 'partido' && (
+        <div className="message-author">
+          <strong>{msg.Usuario?.nombre || 'Jugador'}:</strong>
+        </div>
+      )}
+      <div>{contenido}</div>
+      <small className="message-date">{formatearFecha(msg.createdAt || msg.fecha)}</small>
+    </div>
+    
   );
+  
+
 })}
 
 
 
+<div style={{ height: '20px' }}></div>
+
                   </div>
-                  <form className="chat-input" onSubmit={(e) => { e.preventDefault(); enviarMensaje(); }}>
-                    <input
-                      type="text"
-                      value={texto}
-                      onChange={(e) => setTexto(e.target.value)}
-                      placeholder="Escribe tu mensaje..."
-                    />
-                    <button type="submit">Enviar</button>
-                  </form>
+                 {tipoChat === 'partido' && !puedeHablar ? (
+  <div className="mensaje-bloqueado">
+    ⚠ Fuiste removido del partido. No podés enviar mensajes.
+  </div>
+) : (
+  <form className="chat-input" onSubmit={(e) => { e.preventDefault(); enviarMensaje(); }}>
+    <input
+      type="text"
+      value={texto}
+      onChange={(e) => setTexto(e.target.value)}
+      placeholder="Escribe tu mensaje..."
+    />
+    <button type="submit">Enviar</button>
+  </form>
+)}
+
                 </>
               ) : (
                 <div className="chat-placeholder">Selecciona un usuario o partido para chatear</div>
