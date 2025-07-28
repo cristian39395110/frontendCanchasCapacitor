@@ -149,6 +149,15 @@
   border-radius: 8px;
   margin: 10px;
 }
+.sistema {
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+  padding: 8px;
+  border-radius: 8px;
+  margin: 8px 0;
+}
+
 
 
 .chat-input input {
