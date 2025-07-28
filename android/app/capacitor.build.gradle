@@ -20,7 +20,7 @@ dependencies {
     implementation project(':capacitor-native-biometric')
 
 }
-apply from: "../../node_modules/cordova-plugin-fingerprint-aio/src/android/build.gradle"
+
 
 if (hasProperty('postBuildExtras')) {
   postBuildExtras()

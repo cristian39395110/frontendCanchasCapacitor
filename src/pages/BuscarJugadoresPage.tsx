@@ -5,8 +5,11 @@
   import { Geolocation } from '@capacitor/geolocation';
   import MapaLeaflet from '../components/MapaLeaflet';
   import './BuscarJugadoresPage.css';
-  import { ToastContainer, toast } from 'react-toastify';
-  import 'react-toastify/dist/ReactToastify.css';
+  import { toast } from 'react-toastify';
+
+
+import 'react-toastify/dist/ReactToastify.css';
+
 
   const BuscarJugadoresPage: React.FC = () => {
     const [deportes, setDeportes] = useState<any[]>([]);
@@ -27,6 +30,8 @@
   const [rangoEdad, setRangoEdad] = useState<string[]>([]);
   const [categorias, setCategorias] = useState<string[]>([]);
   const [enviando, setEnviando] = useState(false);
+  const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
+
 
 
     const [ubicacionManual, setUbicacionManual] = useState(false);
@@ -63,11 +68,13 @@
     setEnviando(true);    
       if (!fecha || !hora || !localidadInput || !lugar || !cantidadJugadores || !nombre.trim() || !deporteSeleccionado) {
         toast.error('Completa todos los campos correctamente.');
+         setEnviando(false);
         return;
       }
 
       if (!latitud || !longitud) {
         toast.error('Intenta marcar la ubicación en el mapa');
+         setEnviando(false);
         return;
       }
 
@@ -105,10 +112,13 @@
       }
         if (rangoEdad.length === 0 && categorias.length === 0) {
       toast.warning('⚠️ No seleccionaste edad ni categoría. Se invitará a todos los jugadores por defecto.');
+       setEnviando(false);
     } else if (rangoEdad.length === 0) {
       toast.warning('⚠️ No seleccionaste rango de edad. Se invitará a todas las edades.');
+       setEnviando(false);
     } else if (categorias.length === 0) {
       toast.warning('⚠️ No seleccionaste categoría. Se invitará a todas las categorías.');
+       setEnviando(false);
     }
   const fechaSinZona = fecha;       // "2025-07-19"
   const horaSinZona = hora;  
@@ -167,6 +177,7 @@
           console.error(err);
           setEnviando(false); 
           toast.error('❌ Ocurrió un error al crear el partido.');
+          
         });
     };
 
@@ -175,7 +186,8 @@
     return (
       <div>
         <Navbar />
-        <div style={{ padding: '20px', maxWidth: '480px', margin: '80px auto 40px auto' }}>
+       <div className="buscar-jugadores-container">
+
           <h2 style={{ textAlign: 'center' }}>Buscar Jugadores</h2>
 
           {!deporteSeleccionado ? (
@@ -215,30 +227,55 @@
                 style={{ width: '100%', borderRadius: '8px', marginBottom: '20px' }}
               />
 
-              <label>Seleccionar Cancha</label>
-              <input
-    list="canchas-list"
-    value={canchaManual}
-    onChange={(e) => {
-      const valor = e.target.value;
-      setCanchaManual(valor);
+<label>Seleccionar Cancha</label>
+<div style={{ position: 'relative' }}>
+  <input
+  type="text"
+  value={canchaManual}
+  onChange={(e) => {
+    const valor = e.target.value;
+    setCanchaManual(valor);
+    setMostrarSugerencias(true); // mostrar mientras escribe
 
-      const seleccionada = canchas.find(c => c.nombre.toLowerCase() === valor.toLowerCase());
-      if (seleccionada) {
-        setCanchaSeleccionada(seleccionada);
-      } else {
-        setCanchaSeleccionada(null);
-      }
-    }}
+    const seleccionada = canchas.find(c =>
+      c.nombre.toLowerCase() === valor.toLowerCase()
+    );
+    setCanchaSeleccionada(seleccionada || null);
+  }}
+  onBlur={() => {
+    // Esperamos un toque para que se registre el click
+    setTimeout(() => setMostrarSugerencias(false), 150);
+  }}
+  onFocus={() => {
+    if (canchaManual) setMostrarSugerencias(true);
+  }}
+  placeholder="Escribí o seleccioná una cancha"
+  style={{ width: '100%', marginBottom: '5px' }}
+/>
 
-                placeholder="Escribí o seleccioná una cancha"
-                style={{ width: '100%', marginBottom: '15px' }}
-              />
-              <datalist id="canchas-list">
-                {canchas.map((c) => (
-                  <option key={c.id} value={c.nombre} />
-                ))}
-              </datalist>
+  {/* Sugerencias filtradas */}
+{mostrarSugerencias && canchaManual.length > 0 && (
+  <ul className="sugerencias">
+    {canchas
+      .filter(c =>
+        c.nombre.toLowerCase().includes(canchaManual.toLowerCase())
+      )
+      .map(c => (
+        <li
+          key={c.id}
+          onClick={() => {
+            setCanchaManual(c.nombre);
+            setCanchaSeleccionada(c);
+            setMostrarSugerencias(false); // ocultar al seleccionar
+          }}
+        >
+          {c.nombre}
+        </li>
+      ))}
+  </ul>
+)}
+
+</div>
 
               <label>Nombre del establecimiento</label>
               <input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} style={{ width: '100%', marginBottom: '15px' }} />
@@ -369,7 +406,7 @@
               </div>
             </>
           )}
-          <ToastContainer />
+       
         </div>
       </div>
     );

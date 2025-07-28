@@ -71,18 +71,20 @@ const aceptarInvitacion = (partidoId: number) => {
 };
 
 
-  const rechazarInvitacion = (partidoId: number) => {
-    fetch(`${API_URL}/api/solicitudes/rechazar/${partidoId}`, {
-      method: 'POST'
+ const rechazarInvitacion = (partidoId: number) => {
+  fetch(`${API_URL}/api/solicitudes/rechazar/${partidoId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ usuarioId: Number(usuarioId) }) // 👈 ¡ESTO FALTABA!
+  })
+    .then(() => {
+      alert('❌ Invitación rechazada');
+      setInvitaciones(prev =>
+        prev.filter(inv => inv.id !== partidoId)
+      );
     })
-      .then(() => {
-        alert('❌ Invitación rechazada');
-        setInvitaciones(prev =>
-          prev.filter(inv => inv.id !== partidoId)
-        );
-      })
-      .catch(err => console.error(err));
-  };
+    .catch(err => console.error(err));
+};
 
   const cancelarAsistencia = (partidoId: number) => {
     fetch(`${API_URL}/api/solicitudes/cancelar`, {

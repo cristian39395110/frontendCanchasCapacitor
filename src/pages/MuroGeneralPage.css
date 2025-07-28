@@ -1,267 +1,361 @@
 
-/* MuroGeneralPage.css */
-:root {
-  --color-bg: #ffffff;
-  --color-text: #1f2937;
-  --color-subtext: #444;
-  --color-btn: #25d366;
-  --color-btn-hover: #1ebd5a;
-  --color-card: #f9fafb;
-  --color-shadow: rgba(0,0,0,0.08);
-}
-
-@media (prefers-color-scheme: dark) {
+  /* MuroGeneralPage.css */
   :root {
-    --color-bg: #121212;
-    --color-text: #f3f4f6;
-    --color-subtext: #d1d5db;
-    --color-card: #1e1e1e;
-    --color-shadow: rgba(255,255,255,0.05);
+    --color-bg: #ffffff;
+    --color-text: #1f2937;
+    --color-subtext: #444;
+    --color-btn: #25d366;
+    --color-btn-hover: #1ebd5a;
+    --color-card: #f9fafb;
+    --color-shadow: rgba(0,0,0,0.08);
   }
-}
 
-body {
-  background-color: var(--color-bg);
-  color: var(--color-text);
-}
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #121212;
+      --color-text: #f3f4f6;
+      --color-subtext: #d1d5db;
+      --color-card: #1e1e1e;
+      --color-shadow: rgba(255,255,255,0.05);
+    }
+  }
 
-.muro-general-container {
-  padding: 16px;
-  max-width: 900px;
-  margin: auto;
-}
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+  }
 
-.titulo-muro {
+  .muro-general-container {
+    padding: 16px;
+    max-width: 900px;
+    margin: auto;
+  }
+
+  .titulo-muro {
+    text-align: center;
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+  }
+
+  .formulario-publicar {
+    background-color: var(--color-card);
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 6px var(--color-shadow);
+  }
+
+  .formulario-publicar textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+
+  .formulario-publicar input[type="file"] {
+    margin-bottom: 10px;
+  }
+
+
+  .formulario-publicar button:hover {
+    background-color: var(--color-btn-hover);
+  }
+ .boton-publicar {
+  display: inline-block;
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
   text-align: center;
-  font-size: 1.6rem;
-  margin-bottom: 20px;
+  text-decoration: none;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-.formulario-publicar {
-  background-color: var(--color-card);
-  padding: 12px;
-  border-radius: 10px;
-  margin-bottom: 24px;
-  box-shadow: 0 2px 6px var(--color-shadow);
-}
-
-.formulario-publicar textarea {
-  width: 100%;
-  min-height: 80px;
-  padding: 10px;
-  margin-bottom: 10px;
-  font-size: 1rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-.formulario-publicar input[type="file"] {
-  margin-bottom: 10px;
-}
-
-.formulario-publicar button {
-  background-color: var(--color-btn);
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.formulario-publicar button:hover {
-  background-color: var(--color-btn-hover);
-}
-
-.publicacion {
-  background-color: var(--color-card);
-  border-radius: 12px;
-  padding: 12px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 6px var(--color-shadow);
-}
-
-.publicacion-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.foto-perfil {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.publicacion-texto {
-  font-size: 1rem;
-  margin-bottom: 10px;
-}
-
-.media-publicacion {
-  width: 100%;
-  border-radius: 10px;
-  margin-top: 10px;
-  cursor: pointer;
-}
-
-.acciones-publicacion {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 10px;
-}
-
-.like-button {
-  background: none;
-  border: none;
-  font-size: 1.4rem;
-  cursor: pointer;
-}
-
-.toggle-comentarios {
-  background: none;
-  border: none;
-  color: var(--color-btn);
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-.comentarios {
-  margin-top: 10px;
-  background-color: #f0f0f0;
-  padding: 10px;
-  border-radius: 6px;
-}
-
-.comentario {
-  margin-bottom: 6px;
-}
-
-.formulario-comentario {
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.formulario-comentario input {
-  flex: 1;
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-.formulario-comentario button {
-  background-color: var(--color-btn);
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.contenedor-thumbnail-video {
-  position: relative;
+.boton-publicar:hover {
+  background-color: #0056b3;
+  transform: scale(1.03);
 }
 
 
-.publicacion.resaltada {
-  border: 2px solid #007bff;
-  background-color: #e6f0ff;
-  scroll-margin-top: 80px; /* Para que no quede tapada por el navbar */
-}
-
-
-.icono-play {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 3rem;
-  color: white;
-  text-shadow: 0 0 10px black;
-}
-.video-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  backdrop-filter: blur(6px); /* Fondo borroso */
-  background-color: rgba(0, 0, 0, 0.75); /* Oscurecido suave */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
+  .publicacion {
+    background-color: var(--color-card);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 6px var(--color-shadow);
   }
-  to {
-    opacity: 1;
+
+  .publicacion-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .foto-perfil {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .publicacion-texto {
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+
+  .media-publicacion {
+    width: 100%;
+    border-radius: 10px;
+    margin-top: 10px;
+    cursor: pointer;
+  }
+
+  .acciones-publicacion {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+  }
+
+  .like-button {
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+  }
+
+  .toggle-comentarios {
+    background: none;
+    border: none;
+    color: var(--color-btn);
+    cursor: pointer;
+    margin-top: 10px;
+  }
+
+  /* 💬 Contenedor general de comentarios */
+  .comentarios-container {
+    margin-top: 10px;
+    padding-left: 15px;
+  }
+
+  /* 💭 Burbuja de comentario */
+  .comentario-burbuja {
+    background-color: var(--comentario-bg);
+    padding: 8px 12px;
+    border-radius: 15px;
+    margin-bottom: 8px;
+    max-width: 90%;
+    position: relative;
+    font-size: 14px;
+    transition: background-color 0.3s;
+  }
+
+  /* 👤 Nombre del usuario */
+  .comentario-nombre {
+    font-weight: bold;
+    margin-right: 5px;
+    color: var(--comentario-nombre);
+  }
+
+  /* ✍ Texto del comentario */
+  .comentario-texto {
+    color: var(--comentario-texto);
+  }
+
+  /* 🗑 Botón para borrar */
+  .btn-eliminar-comentario {
+    background: none;
+    border: none;
+    color: var(--color-texto);
+    cursor: pointer;
+    font-size: 1rem;
+    margin-left: 10px;
+  }
+
+  /* ➕ Ver más comentarios */
+
+  .ver-mas-comentarios {
+    background: none;
+    border: none;
+    color: var(--color-acento, #007bff);
+    font-size: 0.9rem;
+    margin-top: 5px;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  .ver-mas-comentarios:hover {
+    color: var(--color-hover, #0056b3);
+    text-decoration: none;
+  }
+
+
+  /* 🎨 Variables de tema */
+  :root {
+    --comentario-bg: #f2f2f2;
+    --comentario-nombre: #333;
+    --comentario-texto: #444;
+    --comentario-vermas: #007bff;
+  }
+
+  body.dark {
+    --comentario-bg: #333;
+    --comentario-nombre: #f0f0f0;
+    --comentario-texto: #ccc;
+    --comentario-vermas: #61dafb;
+  }
+
+  .toggle-comentarios {
+    display: block; /* Esto permite que el botón ocupe todo el ancho */
+    margin: 10px auto; /* Esto lo centra horizontalmente */
+    background: none;
+    border: none;
+    color: var(--color-acento, #007bff);
+    cursor: pointer;
+    font-size: 0.95rem;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: color 0.2s ease;
+    text-align: center;
+  }
+
+  .toggle-comentarios:hover {
+    color: var(--color-hover, #0056b3);
+    text-decoration: underline;
+  }
+
+
+  .formulario-comentario {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .formulario-comentario input {
+    flex: 1;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+
+  .formulario-comentario button {
+    background-color: var(--color-btn);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .contenedor-thumbnail-video {
+    position: relative;
+  }
+
+
+  .publicacion.resaltada {
+    border: 2px solid #007bff;
+    background-color: #e6f0ff;
+    scroll-margin-top: 80px; /* Para que no quede tapada por el navbar */
+  }
+
+
+  .icono-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3rem;
+    color: white;
+    text-shadow: 0 0 10px black;
+  }
+  .video-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    backdrop-filter: blur(6px); /* Fondo borroso */
+    background-color: rgba(0, 0, 0, 0.75); /* Oscurecido suave */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .video-ampliado-modal {
+    width: 96%;
+    max-width: 900px;
+    max-height: 85vh;
+    background-color: black;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
     transform: scale(1);
+    transition: transform 0.3s ease;
+    position: relative;
   }
-}
 
-.video-ampliado-modal {
-  width: 96%;
-  max-width: 900px;
-  max-height: 85vh;
-  background-color: black;
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-  overflow: hidden;
-  transform: scale(1);
-  transition: transform 0.3s ease;
-  position: relative;
-}
+  .video-ampliado-modal video {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 0;
+    object-fit: contain;
+    background-color: black;
+  }
 
-.video-ampliado-modal video {
-  width: 100%;
-  height: auto;
-  display: block;
-  border-radius: 0;
-  object-fit: contain;
-  background-color: black;
-}
+  .boton-cerrar-video {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background-color: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.2s ease;
+  }
+  .btn-eliminar-comentario {
+    background: transparent;
+    border: none;
+    color: red;
+    font-size: 1rem;
+    margin-left: 8px;
+    cursor: pointer;
+  }
+  .btn-eliminar-comentario:hover {
+    color: darkred;
+  }
 
-.boton-cerrar-video {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background-color: rgba(255, 255, 255, 0.15);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  font-size: 1.5rem;
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-  z-index: 10000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: background-color 0.2s ease;
-}
-.btn-eliminar-comentario {
-  background: transparent;
-  border: none;
-  color: red;
-  font-size: 1rem;
-  margin-left: 8px;
-  cursor: pointer;
-}
-.btn-eliminar-comentario:hover {
-  color: darkred;
-}
-
-.boton-cerrar-video:hover {
-  background-color: rgba(255, 255, 255, 0.3);
-}
+  .boton-cerrar-video:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+  }

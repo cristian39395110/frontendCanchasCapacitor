@@ -144,27 +144,36 @@ useEffect(() => {
     setComentarioTexto(prev => ({ ...prev, [publicacionId]: '' }));
   };
 
-  const handlePublicar = async () => {
-    if (!nuevaPublicacion.trim() && !fotoPublicacion) return;
+const handlePublicar = async () => {
+  if (!nuevaPublicacion.trim() && !fotoPublicacion) return;
 
-    const formData = new FormData();
-    formData.append('contenido', nuevaPublicacion);
-    formData.append('usuarioId', usuarioId || '');
-    if (fotoPublicacion) formData.append('foto', fotoPublicacion);
+  const formData = new FormData();
+  formData.append('contenido', nuevaPublicacion);
+  formData.append('usuarioId', usuarioId || '');
+  formData.append('perfilId', usuarioId || ''); // ✅ NECESARIO para que no devuelva 400
 
-    try {
-      const res = await fetch(`${API_URL}/api/publicaciones`, {
-        method: 'POST',
-        body: formData,
-      });
-      const nueva = await res.json();
-      setPublicaciones([nueva, ...publicaciones]);
-      setNuevaPublicacion('');
-      setFotoPublicacion(null);
-    } catch (err) {
-      console.error('Error al publicar desde el muro', err);
+  if (fotoPublicacion) formData.append('foto', fotoPublicacion);
+
+  try {
+    const res = await fetch(`${API_URL}/api/publicaciones`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      console.error('❌ Error al publicar:', error.error || 'Error desconocido');
+      return;
     }
-  };
+
+    const nueva = await res.json();
+    setPublicaciones([nueva, ...publicaciones]);
+    setNuevaPublicacion('');
+    setFotoPublicacion(null);
+  } catch (err) {
+    console.error('❌ Error de red al publicar:', err);
+  }
+};
 
   return (
     <>
@@ -184,7 +193,9 @@ useEffect(() => {
             accept="image/*,video/mp4"
             onChange={(e) => setFotoPublicacion(e.target.files?.[0] || null)}
           />
-          <button onClick={handlePublicar}>Publicar</button>
+         <button className="boton-publicar" onClick={handlePublicar}>📤 Publicar</button>
+
+
         </div>
 
         {publicaciones.length === 0 ? (
@@ -260,46 +271,66 @@ ref={(el) => {
 </button>
 
 {mostrarComentarios[publi.id] && (
-  <div className="comentarios">
-    {publi.Comentarios?.map((c: any, idx: number) => (
-      <div key={idx} className="comentario">
-        <strong>{c.Usuario?.nombre || 'Anon'}:</strong> {c.contenido}
+  <div className="comentarios-container">
+    {(publi.Comentarios || [])
+      .slice(0, publi.ComentariosExpanded ? publi.Comentarios.length : 2)
+      .map((c: any, idx: number) => (
+        <div key={idx} className="comentario-burbuja">
+          <span className="comentario-nombre">{c.Usuario?.nombre || 'Anon'}:</span>
+          <span className="comentario-texto">{c.contenido}</span>
+          {c.usuarioId === Number(usuarioId) && (
+            <button
+              className="btn-eliminar-comentario"
+              onClick={async () => {
+                try {
+                  await fetch(`${API_URL}/api/publicaciones/comentarios/${c.id}?usuarioId=${usuarioId}`, {
+                    method: 'DELETE',
+                  });
 
-        {/* Botón eliminar solo si el comentario es del usuario actual */}
-        {c.usuarioId === Number(usuarioId) && (
-          <button
-            className="btn-eliminar-comentario"
-            onClick={async () => {
-              try {
-              await fetch(`${API_URL}/api/publicaciones/comentarios/${c.id}?usuarioId=${usuarioId}`, {
-  method: 'DELETE'
-});
+                  setPublicaciones(prev =>
+                    prev.map(publiAnterior =>
+                      publiAnterior.id === publi.id
+                        ? {
+                            ...publiAnterior,
+                            Comentarios: publiAnterior.Comentarios.filter(
+                              (com: any) => com.id !== c.id
+                            ),
+                          }
+                        : publiAnterior
+                    )
+                  );
+                } catch (err) {
+                  console.error('Error al eliminar comentario:', err);
+                }
+              }}
+            >
+              🗑️
+            </button>
+          )}
+        </div>
+      ))}
 
-                setPublicaciones(prev =>
-                  prev.map(publiAnterior =>
-                    publiAnterior.id === publi.id
-                      ? {
-                          ...publiAnterior,
-                          Comentarios: publiAnterior.Comentarios.filter(
-                            (com: any) => com.id !== c.id
-                          ),
-                        }
-                      : publiAnterior
-                  )
-                );
-              } catch (err) {
-                console.error('Error al eliminar comentario:', err);
-              }
-            }}
-          >
-            🗑️
-          </button>
-        )}
-      </div>
-    ))}
+    {(publi.Comentarios || []).length > 2 && (
+      <button
+        className="ver-mas-comentarios"
+        onClick={() =>
+          setPublicaciones(prev =>
+            prev.map(pub =>
+              pub.id === publi.id
+                ? {
+                    ...pub,
+                    ComentariosExpanded: !pub.ComentariosExpanded,
+                  }
+                : pub
+            )
+          )
+        }
+      >
+        {publi.ComentariosExpanded ? 'Ver menos' : 'Ver más comentarios'}
+      </button>
+    )}
   </div>
 )}
-
 
 
               <div className="formulario-comentario">

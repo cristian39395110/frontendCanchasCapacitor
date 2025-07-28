@@ -30,6 +30,9 @@ import SplashPage from './pages/SplashPage';
 import PrivateRoute from './components/PrivateRoute';
 import BottomNavbar from './components/BottomNavbar';
 
+  import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import { API_URL } from './config';
 import './index.css';
 import BuscarUsuariosPage from './pages/BuscarUsuariosPage';
@@ -51,6 +54,8 @@ function AppInner() {
   const [usuarioId, setUsuarioId] = useState<string | null>(localStorage.getItem('usuarioId'));
   const [mensajesNoLeidos, setMensajesNoLeidos] = useState(0);
   const [invitaciones, setInvitaciones] = useState(0);
+
+
   
 
   // ✅ Detectar cambios de ruta y sincronizar estado
@@ -179,6 +184,16 @@ function AppInner() {
 
         <Route path="*" element={<LoginPage />} />
       </Routes>
+
+         <ToastContainer
+        position="top-center"
+        autoClose={4000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnFocusLoss={false}
+        pauseOnHover={false}
+      />
 
       {/* ✅ BottomNavbar solo si hay sesión activa y no estamos en login/registro */}
       {!ocultarBottomNavbar && (
