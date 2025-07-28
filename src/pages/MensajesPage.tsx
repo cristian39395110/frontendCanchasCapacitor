@@ -58,7 +58,9 @@ import { Keyboard } from '@capacitor/keyboard';
       const [usuariosConMensajes, setUsuariosConMensajes] = useState<number[]>([]);
 const [partidosConMensajes, setPartidosConMensajes] = useState<number[]>([]);
 const [puedeHablar, setPuedeHablar] = useState(true); // por defecto sí puede
+const [mensajeIdsLeidos, setMensajeIdsLeidos] = useState<number[]>([]);
 
+const ultimoMensajePartidoRef = useRef<HTMLDivElement | null>(null);
 
 
 const [mostrarModal, setMostrarModal] = useState(false);
@@ -70,19 +72,41 @@ const navigate = useNavigate();
 // Al comienzo del componente
 const usuarioId: string | null = localStorage.getItem('usuarioId');
 
+useEffect(() => {
+  if (tipoChat === 'partido' && ultimoMensajePartidoRef.current) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          // 🔥 Lógica para marcar como leído
+          fetch(`${API_URL}/api/mensajes-partido/marcar-leido/${partidoSeleccionadoId}/${usuarioId}`, {
+            method: 'PUT',
+          }).then(() => {
+            console.log('✅ Mensajes marcados como leídos');
+          }).catch(err => {
+            console.error('❌ Error al marcar como leídos:', err);
+          });
+        }
+      },
+      { threshold: 1.0 }
+    );
 
+    observer.observe(ultimoMensajePartidoRef.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }
+}, [mensajes, tipoChat, partidoSeleccionadoId]);
 
 useEffect(() => {
   const obtenerPartidosConMensajesNoLeidos = async () => {
     
     try {
       
-      const res = await fetch(`${API_URL}/api/mensajes-partido/no-leidos/${usuarioId}`);
-      const data = await res.json(); // debería ser un array de { partidoId: number }
-
-      const ids = data.map((item: any) => item.partidoId);
-      console.log('🔵 Partidos con mensajes no leídos:', ids);
-      setPartidosConMensajes(ids);
+      const response = await fetch(`${API_URL}/api/mensajes-partido/no-leidos/${usuarioId}`);
+ const data = await response.json();
+      const ids = data.partidosConMensajes || []; // 👈 esto es CLAVE
+      setPartidosConMensajes(ids); // 
     } catch (error) {
       console.error('❌ Error al obtener partidos con mensajes no leídos:', error);
     }
@@ -94,6 +118,17 @@ useEffect(() => {
 }, [usuarioId]);
 
 
+const traerMensajesLeidos = async () => {
+  if (tipoChat !== 'partido' || !partidoSeleccionadoRef.current || !usuarioId) return;
+
+  try {
+    const res = await fetch(`${API_URL}/api/mensajes-partido/leidos/${partidoSeleccionadoRef.current}/${usuarioId}`);
+    const data = await res.json();
+    setMensajeIdsLeidos(data.mensajeIdsLeidos || []);
+  } catch (error) {
+    console.error('❌ Error al obtener mensajes leídos:', error);
+  }
+};
 
 useEffect(() => {
   const obtenerNoLeidos = async () => {
@@ -332,9 +367,11 @@ const seleccionarPartido = async (partidoId: number, nombre: string) => {
     }
 
     // 🔵 Obtenemos mensajes leídos
-    const leidosRes = await fetch(`${API_URL}/api/mensajes-partido/leidos/${partidoId}/${usuarioId}`);
-    const { mensajeIdsLeidos } = await leidosRes.json();
-    console.log('🔵 Leídos:', mensajeIdsLeidos);
+   const leidosRes = await fetch(`${API_URL}/api/mensajes-partido/leidos/${partidoId}/${usuarioId}`);
+const { mensajeIdsLeidos: ids } = await leidosRes.json();
+console.log('🔵 Leídos:', ids);
+setMensajeIdsLeidos(ids || []);
+
 
     // ✅ Marcamos leídos
     const mensajesConLeido = data.map((m: any) => ({
@@ -351,7 +388,20 @@ const seleccionarPartido = async (partidoId: number, nombre: string) => {
       method: 'PUT',
     });
 
-    setPartidosConMensajes((prev) => prev.filter((id) => id !== partidoId));
+ setPartidosConMensajes((prev) => prev.filter((id) => id !== partidoId));
+
+  // 🧠 Si el último mensaje es del sistema, marcar partido como con mensaje pendiente
+if (data.length > 0) {
+  const ultimo = data[data.length - 1];
+  if (ultimo.tipo === 'sistema') {
+    setPartidosConMensajes((prev) => {
+      if (!prev.includes(partidoId)) return [...prev, partidoId];
+      return prev;
+    });
+  }
+}
+
+   
   } catch (error) {
     console.error('❌ Error al seleccionar partido:', error);
     setMensajes([]);
@@ -528,6 +578,8 @@ useEffect(() => {
   fetch(`${API_URL}/api/mensajes-partido/no-leidos/${usuarioId}`)
     .then(res => res.json())
     .then(data => {
+
+      console.log("que mierda",data)
       if (data.partidosConMensajes) {
         setPartidosConMensajes(data.partidosConMensajes);
       }
@@ -625,16 +677,18 @@ useEffect(() => {
 {partidos.map(p => (
   <div
     key={p.id}
-    className={`user-chat 
-      ${partidoSeleccionadoId === p.id ? 'selected' : ''} 
-      ${partidosConMensajes.includes(p.id) ? 'nuevo-mensaje' : ''}`}
+ className={`user-chat 
+  ${partidoSeleccionadoId === p.id ? 'selected' : ''} 
+  ${partidosConMensajes.includes(Number(p.id)) ? 'nuevo-mensaje' : ''}`}
+
     onClick={() => seleccionarPartido(p.id, p.nombre)}
   >
     <span>{p.nombre}</span>
 
-    {partidosConMensajes.includes(p.id) && (
-      <span className="emoji-sobrecito">📩</span>
-    )}
+   {partidosConMensajes.includes(Number(p.id)) && (
+  <span className="emoji-sobrecito">📩</span>
+)}
+
   </div>
 ))}
 
@@ -718,8 +772,10 @@ useEffect(() => {
   return (
     <div
       key={i}
-      className={`message-bubble ${esMio ? 'sent' : 'received'} ${!msg.leido ? 'no-leido' : ''}`}
-      ref={esUltimo ? mensajesRef : null}
+      className={`message-bubble ${esMio ? 'sent' : 'received'} ${!esMio && tipoChat === 'partido' && !mensajeIdsLeidos.includes(msg.id) ? 'no-leido' : ''}`}
+
+      ref={esUltimo ? (tipoChat === 'partido' ? ultimoMensajePartidoRef : mensajesRef) : null}
+
       onContextMenu={(e) => {
         e.preventDefault();
         if (esMio && window.confirm('¿Eliminar este mensaje?')) {
