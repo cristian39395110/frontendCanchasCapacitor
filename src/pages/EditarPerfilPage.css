@@ -17,6 +17,43 @@
   color: #333;
 }
 
+.foto-perfil-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.foto-perfil {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ccc;
+  margin-top: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+.input-archivo {
+  display: none;
+}
+
+.label-archivo {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 10px;
+  display: inline-block;
+  transition: background-color 0.3s ease;
+}
+
+.label-archivo:hover {
+  background-color: #0056b3;
+}
+
+
 .editar-perfil-container h3 {
   margin-top: 30px;
   margin-bottom: 10px;

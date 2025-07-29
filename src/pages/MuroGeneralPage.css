@@ -59,6 +59,39 @@
     margin-bottom: 10px;
   }
 
+  .custom-file-upload {
+  display: inline-block;
+  padding: 6px 12px;
+  cursor: pointer;
+  background-color: #007bff;
+  color: white;
+  border-radius: 8px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.custom-file-upload input[type="file"] {
+  display: none;
+}
+
+.nombre-archivo {
+  display: block;
+  margin-top: 6px;
+  color: #333;
+  font-size: 0.9rem;
+}
+.grupo-botones-publicacion {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.custom-file-upload,
+.boton-publicar {
+  flex: 1;
+  text-align: center;
+}
+
 
   .formulario-publicar button:hover {
     background-color: var(--color-btn-hover);

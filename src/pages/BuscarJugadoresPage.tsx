@@ -45,23 +45,47 @@ import 'react-toastify/dist/ReactToastify.css';
     const [mostrarModalPremium, setMostrarModalPremium] = useState(false);
 
 
-    useEffect(() => {
-      const obtenerUbicacion = async () => {
-        try {
-          const { coords } = await Geolocation.getCurrentPosition();
-          setLatitud(coords.latitude);
-          setLongitud(coords.longitude);
-          setUbicacionManual(false);
+   useEffect(() => {
+  const obtenerUbicacion = async () => {
+    try {
+      // 1️⃣ Primero obtenemos la ubicación guardada del usuario
+      const res = await fetch(`${API_URL}/api/usuarios/${organizadorId}/ubicacion`);
 
-        } catch (error) {
-          console.error('❌ No se pudo obtener la ubicación del dispositivo', error);
-        }
-      };
+      const data = await res.json();
+      if (data.latitud && data.longitud) {
+        setLatitud(data.latitud);
+        setLongitud(data.longitud);
+      }
 
-      obtenerUbicacion();
-      fetch(`${API_URL}/api/canchas`).then(res => res.json()).then(setCanchas).catch(console.error);
-      fetch(`${API_URL}/api/deportes`).then(res => res.json()).then(setDeportes).catch(console.error);
-    }, []);
+      // 2️⃣ Luego intentamos obtener la ubicación en tiempo real
+      const permiso = await Geolocation.requestPermissions();
+      if (permiso.location === 'granted') {
+        const posicion = await Geolocation.getCurrentPosition();
+        setLatitud(posicion.coords.latitude);
+        setLongitud(posicion.coords.longitude);
+        setUbicacionManual(false);
+      } else {
+        console.warn('📍 Usando ubicación guardada (GPS denegado)');
+      }
+    } catch (error) {
+      console.warn('❌ No se pudo obtener ubicación actual. Usando ubicación guardada.', error);
+    }
+  };
+
+  obtenerUbicacion();
+
+  // Cargar canchas y deportes
+  fetch(`${API_URL}/api/canchas`)
+    .then(res => res.json())
+    .then(setCanchas)
+    .catch(console.error);
+
+  fetch(`${API_URL}/api/deportes`)
+    .then(res => res.json())
+    .then(setDeportes)
+    .catch(console.error);
+}, []);
+
 
     const handleEnviarNotificacion = async () => {
       if (enviando) return;        // ✅ Previene doble clic

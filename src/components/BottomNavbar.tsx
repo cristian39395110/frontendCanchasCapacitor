@@ -21,6 +21,8 @@ const BottomNavbar: React.FC<BottomNavbarProps> = ({  }) => {
   const [notificacionesNoLeidas, setNotificacionesNoLeidas] = useState(0);
 
   const [notificaciones, setNotificaciones] = useState<any[]>([]);
+// 👇 Esto va arriba del componente
+const notificacionesMostradas = new Set<number>();
 
 
   const obtenerNotificaciones = async () => {
@@ -50,7 +52,10 @@ useEffect(() => {
 
   socket.emit('join', `usuario-${usuarioId}`);
 
- const manejarNotificacion = async (nueva: any) => {
+const manejarNotificacion = async (nueva: any) => {
+  if (notificacionesMostradas.has(nueva.id)) return; // ✅ Ya mostramos esta
+  notificacionesMostradas.add(nueva.id);
+
   console.log('🔔 Notificación recibida:', nueva);
   toast.info(nueva.mensaje);
 

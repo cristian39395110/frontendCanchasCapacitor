@@ -185,15 +185,18 @@ function AppInner() {
         <Route path="*" element={<LoginPage />} />
       </Routes>
 
-         <ToastContainer
-        position="top-center"
-        autoClose={4000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        pauseOnFocusLoss={false}
-        pauseOnHover={false}
-      />
+       <ToastContainer
+  position="top-center"
+  autoClose={4000}
+  hideProgressBar={false}
+  newestOnTop
+  closeOnClick
+  pauseOnFocusLoss={false}
+  pauseOnHover={false}
+  draggable
+  closeButton // 🔁 activa botón de cerrar (es true por defecto)
+  theme="light" // o "dark" si estás usando modo oscuro
+/>
 
       {/* ✅ BottomNavbar solo si hay sesión activa y no estamos en login/registro */}
       {!ocultarBottomNavbar && (

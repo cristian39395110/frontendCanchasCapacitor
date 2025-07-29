@@ -188,13 +188,20 @@ const handlePublicar = async () => {
             value={nuevaPublicacion}
             onChange={(e) => setNuevaPublicacion(e.target.value)}
           ></textarea>
-          <input
-            type="file"
-            accept="image/*,video/mp4"
-            onChange={(e) => setFotoPublicacion(e.target.files?.[0] || null)}
-          />
-         <button className="boton-publicar" onClick={handlePublicar}>📤 Publicar</button>
-
+<div className="grupo-botones-publicacion">
+  <label className="custom-file-upload">
+    📎 Seleccionar archivo
+    <input
+      type="file"
+      accept="image/*,video/mp4"
+      onChange={(e) => setFotoPublicacion(e.target.files?.[0] || null)}
+    />
+  </label>
+  <button className="boton-publicar" onClick={handlePublicar}>📤 Publicar</button>
+</div>
+{fotoPublicacion && (
+  <span className="nombre-archivo">{fotoPublicacion.name}</span>
+)}
 
         </div>
 
