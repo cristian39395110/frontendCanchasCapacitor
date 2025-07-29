@@ -20,6 +20,10 @@ const EditarPerfilPage: React.FC = () => {
 
   const [mostrarPasswordActual, setMostrarPasswordActual] = useState(false);
 const [mostrarPasswordNueva, setMostrarPasswordNueva] = useState(false);
+const [nuevaFotoPerfil, setNuevaFotoPerfil] = useState<File | null>(null);
+const [cargandoFoto, setCargandoFoto] = useState(false);
+
+
 
 
   useEffect(() => {
@@ -31,28 +35,41 @@ const [mostrarPasswordNueva, setMostrarPasswordNueva] = useState(false);
   }, [usuarioId]);
 
   const guardarCambios = async () => {
-    try {
-      const res = await fetch(`${API_URL}/api/usuarios/${usuarioId}`, {
-  method: 'PUT',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${localStorage.getItem('token')}`
-  },
-  body: JSON.stringify(usuario),
-});
+  try {
+    setCargandoFoto(true); // 🟡 Comienza la carga
 
-      if (res.ok) {
-          await Toast.show({ text: '✅ Perfil actualizado correctamente', duration: 'short' });
-        navigate('/perfil');
-      } else {
-       await Toast.show({ text: '❌ Error al guardar los cambios', duration: 'short' });
-      }
-    } catch (error) {
+    const formData = new FormData();
+    formData.append('nombre', usuario.nombre);
+    formData.append('localidad', usuario.localidad);
+    formData.append('sexo', usuario.sexo);
+    formData.append('edad', usuario.edad);
 
-      await Toast.show({ text: '❌ Error al actualizar perfil', duration: 'short' });
-      
+    if (nuevaFotoPerfil) {
+      formData.append('fotoPerfil', nuevaFotoPerfil);
     }
-  };
+
+    const res = await fetch(`${API_URL}/api/usuarios/${usuarioId}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      },
+      body: formData,
+    });
+
+    if (res.ok) {
+      await Toast.show({ text: '✅ Perfil actualizado correctamente', duration: 'short' });
+      navigate('/perfil');
+    } else {
+      await Toast.show({ text: '❌ Error al guardar los cambios', duration: 'short' });
+    }
+  } catch (error) {
+    await Toast.show({ text: '❌ Error al actualizar perfil', duration: 'short' });
+  } finally {
+    setCargandoFoto(false); // 🟢 Finaliza la carga
+  }
+};
+
+
 
   const cambiarPassword = async () => {
     try {
@@ -81,6 +98,32 @@ const [mostrarPasswordNueva, setMostrarPasswordNueva] = useState(false);
       <Navbar />
       <div className="editar-perfil-container">
         <h2>Editar Perfil</h2>
+<div className="foto-perfil-wrapper">
+
+  <img
+    src={
+      nuevaFotoPerfil
+        ? URL.createObjectURL(nuevaFotoPerfil)
+        : usuario.fotoPerfil || 'https://via.placeholder.com/120'
+    }
+    alt="Foto de perfil"
+    className="foto-perfil"
+  />
+     <label htmlFor="fotoPerfilInput" className="label-archivo">
+    📷 Cambiar foto de perfil
+  </label>
+  <input
+    id="fotoPerfilInput"
+    type="file"
+    accept="image/*"
+    onChange={(e) => setNuevaFotoPerfil(e.target.files?.[0] || null)}
+    className="input-archivo"
+  />
+
+
+</div>
+
+
         <div className="form-editar">
           <input type="text" placeholder="Nombre" value={usuario.nombre} onChange={e => setUsuario({ ...usuario, nombre: e.target.value })} />
           <input type="text" placeholder="Localidad" value={usuario.localidad} onChange={e => setUsuario({ ...usuario, localidad: e.target.value })} />
@@ -90,6 +133,10 @@ const [mostrarPasswordNueva, setMostrarPasswordNueva] = useState(false);
             <option value="femenino">Femenino</option>
           </select>
           <input type="number" placeholder="Edad" value={usuario.edad} onChange={e => setUsuario({ ...usuario, edad: e.target.value })} />
+          {cargandoFoto && (
+  <p style={{ color: '#555', textAlign: 'center' }}>🕐 Subiendo foto, por favor esperá...</p>
+)}
+
           <button className="btn-guardar" onClick={guardarCambios}>💾 Guardar cambios</button>
 
          <h3>Cambiar contraseña</h3>

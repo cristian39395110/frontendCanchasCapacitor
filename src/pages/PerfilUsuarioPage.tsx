@@ -1,7 +1,7 @@
   import React, { useEffect, useState } from 'react';
   import { useParams } from 'react-router-dom';
   import Navbar from '../components/Navbar';
-  import CambiarFotoPerfil from '../components/CambiarFotoPerfil';
+
   import { API_URL } from '../config';
   import './PerfilPage.css';
   import { Toast } from '@capacitor/toast';
@@ -262,21 +262,12 @@ const cancelarSolicitud = async () => {
         <div className="perfil-container">
           <div className="perfil-card">
             <div className="perfil-foto">
-          {esPropioPerfil ? (
-    <CambiarFotoPerfil
-      usuarioId={usuarioId || ''}
-      fotoActual={usuario.fotoPerfil}
-      onFotoActualizada={(nuevaUrl) =>
-        setUsuario((prev: any) => ({ ...prev, fotoPerfil: nuevaUrl }))
-      }
-    />
-  ) : (
     <img
-      src={usuario.fotoPerfil}
-      alt="foto perfil"
-      className="perfil-foto-img"
-    />
-  )}
+  src={usuario.fotoPerfil}
+  alt="foto perfil"
+  className="perfil-foto-img"
+/>
+
 
             </div>
 

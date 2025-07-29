@@ -539,12 +539,7 @@ const recibirMensaje = (nuevo: Mensaje) => {
 
 
     window.dispatchEvent(new CustomEvent('nuevoMensaje', { detail: { tipo: 'partido', partidoId: nuevo.partidoId } }));
-/*
-    if (!esChatActual && nuevo.tipo === 'sistema') {
-  const audio = new Audio('/sonidos/notificacion.mp3');
-  audio.play().catch(e => console.warn('🔇 No se pudo reproducir el sonido', e));
-}
-*/
+
     // 👇 SOLO pintamos en azul el partido si no es el chat actual
  if (puedeHablar) {
   setPartidosConMensajes(prev => {
