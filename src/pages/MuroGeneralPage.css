@@ -105,6 +105,7 @@
   padding: 10px 20px;
   font-size: 16px;
   border-radius: 8px;
+
   cursor: pointer;
   margin-top: 10px;
   text-align: center;
@@ -132,13 +133,14 @@
     gap: 10px;
     margin-bottom: 10px;
   }
+.foto-perfil {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  display: block;
+}
 
-  .foto-perfil {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
 
   .publicacion-texto {
     font-size: 1rem;

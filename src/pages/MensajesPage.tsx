@@ -118,18 +118,6 @@ useEffect(() => {
 }, [usuarioId]);
 
 
-const traerMensajesLeidos = async () => {
-  if (tipoChat !== 'partido' || !partidoSeleccionadoRef.current || !usuarioId) return;
-
-  try {
-    const res = await fetch(`${API_URL}/api/mensajes-partido/leidos/${partidoSeleccionadoRef.current}/${usuarioId}`);
-    const data = await res.json();
-    setMensajeIdsLeidos(data.mensajeIdsLeidos || []);
-  } catch (error) {
-    console.error('❌ Error al obtener mensajes leídos:', error);
-  }
-};
-
 useEffect(() => {
   const obtenerNoLeidos = async () => {
     try {

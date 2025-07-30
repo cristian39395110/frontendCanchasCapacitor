@@ -24,6 +24,8 @@
     const [esAmigo, setEsAmigo] = useState(false);
 const [haySolicitudPendiente, setHaySolicitudPendiente] = useState(false);
 const [videoAgrandado, setVideoAgrandado] = useState<string | null>(null);
+const [comentariosVisibles, setComentariosVisibles] = useState<{ [key: number]: boolean }>({});
+
 
 const handleEliminarComentario = async (comentarioId: number, publicacionId: number) => {
   try {
@@ -45,6 +47,12 @@ const handleEliminarComentario = async (comentarioId: number, publicacionId: num
   } catch (err) {
     console.error('❌ Error al eliminar comentario', err);
   }
+};
+const toggleComentarios = (publicacionId: number) => {
+  setComentariosVisibles(prev => ({
+    ...prev,
+    [publicacionId]: !prev[publicacionId]
+  }));
 };
 
 
@@ -378,7 +386,10 @@ const cancelarSolicitud = async () => {
   onChange={(e) => setFotoPublicacion(e.target.files?.[0] || null)}
 />
 
-                <button onClick={handlePublicar}>Publicar</button>
+               <button className="boton-publicar" onClick={handlePublicar}>
+  Publicar
+</button>
+
               </>
              ) : null}
             
@@ -424,36 +435,45 @@ const cancelarSolicitud = async () => {
                     </button>
                   </div>
 
-                  <div className="comentarios">
-  {Array.isArray(publi.Comentarios) && publi.Comentarios.length > 0 ? (
-    publi.Comentarios.map((c: any, idx: number) => (
-      <div
-        key={idx}
-        className={`comentario ${c.usuarioId === Number(usuarioId) ? 'comentario-propio' : ''}`}
-      >
-        {c.Usuario?.fotoPerfil && (
-          <img
-            src={c.Usuario.fotoPerfil}
-            alt="comentador"
-            className="comentario-foto"
-          />
-        )}
-        <strong>{c.Usuario?.nombre || 'Anon'}:</strong> {c.contenido}
+                  <button
+  className="btn-toggle-comentarios"
+  onClick={() => toggleComentarios(publi.id)}
+>
+  🗨️ {comentariosVisibles[publi.id] ? 'Ocultar' : 'Ver'} comentarios
+</button>
 
-        {c.usuarioId === Number(usuarioId) && (
-          <button
-            className="btn-eliminar-comentario"
-            onClick={() => handleEliminarComentario(c.id, publi.id)}
-          >
-            🗑️
-          </button>
-        )}
-      </div>
-    ))
-  ) : (
-    <div className="comentario-vacio">Sé el primero en comentar 🗨️</div>
-  )}
-</div>
+{comentariosVisibles[publi.id] && (
+  <div className="comentarios">
+    {Array.isArray(publi.Comentarios) && publi.Comentarios.length > 0 ? (
+      publi.Comentarios.map((c: any, idx: number) => (
+        <div
+          key={idx}
+          className={`comentario ${c.usuarioId === Number(usuarioId) ? 'comentario-propio' : ''}`}
+        >
+          {c.Usuario?.fotoPerfil && (
+            <img
+              src={c.Usuario.fotoPerfil}
+              alt="comentador"
+              className="comentario-foto"
+            />
+          )}
+          <strong>{c.Usuario?.nombre || 'Anon'}:</strong> {c.contenido}
+
+          {c.usuarioId === Number(usuarioId) && (
+            <button
+              className="btn-eliminar-comentario"
+              onClick={() => handleEliminarComentario(c.id, publi.id)}
+            >
+              🗑️
+            </button>
+          )}
+        </div>
+      ))
+    ) : (
+      <div className="comentario-vacio">Sé el primero en comentar 🗨️</div>
+    )}
+  </div>
+)}
 
 
                   <div className="formulario-comentario">
