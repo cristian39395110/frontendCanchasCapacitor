@@ -190,7 +190,7 @@ const handlePublicar = async () => {
           ></textarea>
 <div className="grupo-botones-publicacion">
   <label className="custom-file-upload">
-    📎 Seleccionar archivo
+    📎 subir 
     <input
       type="file"
       accept="image/*,video/mp4"
