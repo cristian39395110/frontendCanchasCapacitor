@@ -4,7 +4,7 @@
   flex-direction: row;
     height: calc(var(--vh, 1vh) * 100);
  flex: 1;
-   margin: 100px auto 40px auto;
+   margin: 10px auto 40px auto;
   width: 100%;
   max-width: 100vw;
   overflow: hidden;
@@ -16,7 +16,7 @@
   font-weight: bold;
 }
 .keyboard-visible .chat-input {
-  margin-bottom: 300px; /* Ajustá según necesidad */
+  margin-bottom: 600px; /* Ajustá según necesidad */
 }
 
 
@@ -69,6 +69,7 @@
   flex-direction: column;
   width: 70%;
   box-sizing: border-box;
+  padding-bottom: 10px;
 }
 
 /* Cabecera con el nombre */

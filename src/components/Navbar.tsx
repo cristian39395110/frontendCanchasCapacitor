@@ -329,16 +329,23 @@ useEffect(() => {
       <IconButton onClick={() => navigate('/juegonuevo')} icon={<FaPlus />} label="Nuevo" />
     )}
     <IconButton onClick={() => navigate('/buscar-jugadores')} icon={<FaSearch />} label="Buscar" />
-  <IconButton
-    onClick={() => {
-      setVibrarChat(false); // 🚫 detener vibración al entrar
-    
 
+
+<IconButton
+  onClick={() => {
+    setVibrarChat(false); // 🚫 detener vibración
+
+    if (location.pathname === '/chat') {
+      // Ya estás en /chat: forzamos recarga o redirección interna
+      navigate(0); // 👉 primero lo llevás al inicio
+      setTimeout(() => navigate('/chat'), 100); // 👉 y luego a /chat de nuevo
+    } else {
       navigate('/chat');
-    }}
-    icon={<FaComments className={vibrarChat ? 'vibrar-icono' : ''} />}
-    label={`Chat${mensajesNoLeidos > 0 ? ` (${mensajesNoLeidos})` : ''}`}
-  />
+    }
+  }}
+  icon={<FaComments className={vibrarChat ? 'vibrar-icono' : ''} />}
+  label={`Chat${mensajesNoLeidos > 0 ? ` (${mensajesNoLeidos})` : ''}`}
+/>
 
 
     <IconButton onClick={() => navigate('/aceptaciones')} icon={<FaFutbol  />} label="Aceptaciones" />
