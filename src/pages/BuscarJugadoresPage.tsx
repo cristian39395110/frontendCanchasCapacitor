@@ -2,7 +2,7 @@
   import Navbar from '../components/Navbar';
   import { API_URL } from '../config';
   import { useNavigate } from 'react-router-dom';
-  import { Geolocation } from '@capacitor/geolocation';
+ 
   import MapaLeaflet from '../components/MapaLeaflet';
   import './BuscarJugadoresPage.css';
   import { toast } from 'react-toastify';
@@ -57,16 +57,7 @@ import 'react-toastify/dist/ReactToastify.css';
         setLongitud(data.longitud);
       }
 
-      // 2️⃣ Luego intentamos obtener la ubicación en tiempo real
-      const permiso = await Geolocation.requestPermissions();
-      if (permiso.location === 'granted') {
-        const posicion = await Geolocation.getCurrentPosition();
-        setLatitud(posicion.coords.latitude);
-        setLongitud(posicion.coords.longitude);
-        setUbicacionManual(false);
-      } else {
-        console.warn('📍 Usando ubicación guardada (GPS denegado)');
-      }
+      
     } catch (error) {
       console.warn('❌ No se pudo obtener ubicación actual. Usando ubicación guardada.', error);
     }

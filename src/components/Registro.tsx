@@ -19,15 +19,19 @@ function Registro() {
   const [edad, setEdad] = useState('');
   const [mostrarModal, setMostrarModal] = useState(false);
   const navigate = useNavigate();
-  const { coordenadas, error: errorUbicacion, cargando } = useUbicacion();
+ const { coordenadas, error, cargando, obtenerUbicacion } = useUbicacion();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+   if (!coordenadas) {
+    await obtenerUbicacion();
+
+    // Si aún no hay ubicación, mostrar error
     if (!coordenadas) {
-      toast.error('📍 Ubicación no disponible. Activa el GPS.');
+      toast.error('📍 Ubicación no disponible. Activá el GPS.');
       return;
     }
-
+  }
     try {
       const { identifier: deviceId } = await Device.getId();
 
@@ -73,7 +77,8 @@ function Registro() {
       <div className="registro-card">
         <h2 className="registro-title">Registro</h2>
         {cargando && <p>📍 Obteniendo ubicación...</p>}
-        {errorUbicacion && <p style={{ color: 'red' }}>{errorUbicacion}</p>}
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+
 
         <form onSubmit={handleSubmit} className="registro-form">
           <input type="text" placeholder="Nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} required />

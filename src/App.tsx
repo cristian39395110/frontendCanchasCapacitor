@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
-import { getDeviceToken } from './utils/fcm';
+
 import { PushNotifications } from '@capacitor/push-notifications';
 import MuroGeneralPage from './pages/MuroGeneralPage';
 import AceptacionesPage from './pages/AceptacionesPage';
@@ -68,62 +68,24 @@ function AppInner() {
     }
   }, [location.pathname]);
 
-  // 🌍 Geolocalización
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        () => {},
-        (error) => {
-          if (error.code === error.PERMISSION_DENIED) {
-            alert('🚫 Debes permitir el acceso a tu ubicación para buscar jugadores cercanos.');
-          }
-        }
-      );
-    }
-  }, []);
+  
 
   // 🔔 Notificaciones push
-  useEffect(() => {
-   PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
-  const data = notification.notification?.data;
-  console.log('🔔 Notificación abierta:', data);
+  // 🔔 Notificaciones push
+useEffect(() => {
+  PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
+    const data = notification.notification?.data;
+    console.log('🔔 Notificación abierta:', data);
 
-  if (data?.url) {
-    navigate(data.url); // Ej: "/invitaciones", "/chat/123", etc.
-  } else {
-    navigate('/');
-  }
-});
+    if (data?.url) {
+      navigate(data.url); // Ej: "/invitaciones", "/chat/123", etc.
+    } else {
+      navigate('/');
+    }
+  });
+}, []);
 
-    const iniciarNotificaciones = async () => {
-      const token = localStorage.getItem('token');
-      const usuarioId = localStorage.getItem('usuarioId');
 
-      if (!token || !usuarioId) return;
-
-      if (Capacitor.getPlatform() === 'android') {
-        try {
-          const deviceToken = await getDeviceToken();
-          if (!deviceToken) return;
-
-          await fetch(`${API_URL}/api/suscripcion`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ usuarioId, fcmToken: deviceToken })
-          });
-
-          console.log('✅ Token FCM enviado al backend');
-        } catch (err) {
-          console.error('❌ Error al enviar el token FCM:', err);
-        }
-      }
-    };
-
-    iniciarNotificaciones();
-  }, []);
 
   // 🔄 Mensajes e invitaciones
   useEffect(() => {

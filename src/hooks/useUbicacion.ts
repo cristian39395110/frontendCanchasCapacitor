@@ -1,5 +1,5 @@
 // src/hooks/useUbicacion.ts
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Geolocation } from '@capacitor/geolocation';
 
 type Coordenadas = {
@@ -10,37 +10,34 @@ type Coordenadas = {
 export const useUbicacion = () => {
   const [coordenadas, setCoordenadas] = useState<Coordenadas | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [cargando, setCargando] = useState<boolean>(true);
+  const [cargando, setCargando] = useState<boolean>(false);
 
-  useEffect(() => {
-    const obtenerUbicacion = async () => {
-      try {
-        const position = await Geolocation.getCurrentPosition({
-          enableHighAccuracy: true,
-          timeout: 10000, // 10 segundos máx
-        });
+  const obtenerUbicacion = async () => {
+    setCargando(true);
+    try {
+      const position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 10000,
+      });
 
-        const { latitude, longitude } = position.coords;
+      const { latitude, longitude } = position.coords;
 
-        if (latitude && longitude) {
-          setCoordenadas({ lat: latitude, lng: longitude });
-        } else {
-          setError('Ubicación no disponible. Intenta nuevamente.');
-        }
-      } catch (err: any) {
-        console.error('❌ Error al obtener ubicación:', err);
-        if (err.message?.includes('timeout')) {
-          setError('Tiempo de espera agotado al obtener la ubicación.');
-        } else {
-          setError('No se pudo obtener la ubicación. Activá el GPS y aceptá los permisos.');
-        }
-      } finally {
-        setCargando(false);
+      if (latitude && longitude) {
+        setCoordenadas({ lat: latitude, lng: longitude });
+      } else {
+        setError('Ubicación no disponible. Intenta nuevamente.');
       }
-    };
+    } catch (err: any) {
+      console.error('❌ Error al obtener ubicación:', err);
+      if (err.message?.includes('timeout')) {
+        setError('Tiempo de espera agotado al obtener la ubicación.');
+      } else {
+        setError('No se pudo obtener la ubicación. Activá el GPS y aceptá los permisos.');
+      }
+    } finally {
+      setCargando(false);
+    }
+  };
 
-    obtenerUbicacion();
-  }, []);
-
-  return { coordenadas, error, cargando };
+  return { coordenadas, error, cargando, obtenerUbicacion };
 };

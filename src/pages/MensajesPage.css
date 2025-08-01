@@ -1,5 +1,5 @@
 .chat-container {
-
+  height: calc(100vh - 200px - env(keyboard-inset-height, 0px));
   display: flex;
   flex-direction: row;
     height: calc(var(--vh, 1vh) * 100);
@@ -8,6 +8,7 @@
   width: 100%;
   max-width: 100vw;
   overflow: hidden;
+  
    
 }
 .nuevo-mensaje {
@@ -69,7 +70,7 @@
   flex-direction: column;
   width: 70%;
   box-sizing: border-box;
-  padding-bottom: 10px;
+    height: calc(100vh - 200px - env(keyboard-inset-height, 0px));
 }
 
 /* Cabecera con el nombre */
@@ -83,15 +84,15 @@
 
 /* Contenedor de mensajes */
 .chat-messages {
-  flex-grow: 1;
+  height: calc(600vh - 500px - env(keyboard-inset-height, 0px)); /* 200px aprox = header + input + bottom-navbar */
   padding: 12px;
   overflow-y: auto;
   background: #fefefe;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  max-height: calc(100vh - 220px - env(keyboard-inset-height, 0px));
 }
+
 
 /* Burbujas */
 .message-bubble {
