@@ -1,3 +1,4 @@
+//mensajes page 
     // ✅ MensajesPage.tsx con soporte para chats individuales y grupales
     import React, { useEffect, useState, useRef } from 'react';
     import { API_URL } from '../config';

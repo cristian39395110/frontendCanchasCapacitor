@@ -123,6 +123,47 @@ const [cargandoFoto, setCargandoFoto] = useState(false);
 
 </div>
 
+<button
+  className="btn-guardar"
+  onClick={async () => {
+    try {
+      const permiso = await navigator.permissions?.query({ name: 'geolocation' as any });
+      if (permiso?.state === 'denied') {
+        await Toast.show({ text: '🚫 Tenés que permitir el acceso a tu ubicación en el navegador.', duration: 'short' });
+        return;
+      }
+
+      const posicion = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 10000
+        });
+      });
+
+      const { latitude, longitude } = posicion.coords;
+
+      const res = await fetch(`${API_URL}/api/usuarios/${usuarioId}/ubicacion`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ latitud: latitude, longitud: longitude }),
+      });
+
+      if (res.ok) {
+        await Toast.show({ text: '📍 Ubicación actualizada. Vas a recibir partidos cerca.', duration: 'short' });
+      } else {
+        await Toast.show({ text: '❌ No se pudo actualizar la ubicación', duration: 'short' });
+      }
+    } catch (err) {
+      console.error(err);
+      await Toast.show({ text: '❌ Error al obtener ubicación', duration: 'short' });
+    }
+  }}
+>
+  📡 Actualizar mi ubicación para recibir invitacion de partidos cercanos
+</button>
 
         <div className="form-editar">
           <input type="text" placeholder="Nombre" value={usuario.nombre} onChange={e => setUsuario({ ...usuario, nombre: e.target.value })} />
@@ -173,7 +214,7 @@ const [cargandoFoto, setCargandoFoto] = useState(false);
   </button>
 </div>
 
-          <button className="btn-password" onClick={cambiarPassword}>🔐 Cambiar contraseña</button>
+          <button className="btn-guardar" onClick={cambiarPassword}>🔐 Cambiar contraseña</button>
         </div>
       </div>
     </>
