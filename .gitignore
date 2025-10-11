@@ -31,3 +31,8 @@ android/.idea/
 *.njsproj
 *.sln
 *.sw?
+android/app/google-services.json
+ios/GoogleService-Info.plist
+.env
+.env.*
+dist

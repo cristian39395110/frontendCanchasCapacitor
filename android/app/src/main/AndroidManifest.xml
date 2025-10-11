@@ -46,9 +46,9 @@
       android:resource="@mipmap/ic_launcher" />
 
     <!-- 🌍 Clave de Google Maps -->
-    <meta-data
-      android:name="com.google.android.geo.API_KEY"
-      android:value="AIzaSyBxh1bahBU_Mmu0_JejEAfs6FBZFZ2zAOU" />
+<meta-data
+    android:name="com.google.android.geo.API_KEY"
+    android:value="${MAPS_API_KEY}" />
 
     <!-- ✅ Actividad principal -->
     <activity

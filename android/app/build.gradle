@@ -1,4 +1,3 @@
-//C:\canchascapacitor2025\Canchas2025Backend\canchas-pwa\android\app\build.gradle
 apply plugin: 'com.android.application'
 
 android {
@@ -12,10 +11,16 @@ android {
         versionCode 8
         versionName "1.0.8"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
         aaptOptions {
             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
+
+        // ===== Google Maps API Key por placeholder =====
+        def mapsKey = project.findProperty("MAPS_API_KEY") ?: System.getenv("MAPS_API_KEY") ?: ""
+        manifestPlaceholders = [ MAPS_API_KEY: mapsKey ]
+        // =================================================
     }
 
     buildTypes {
@@ -32,11 +37,8 @@ android {
 }
 
 repositories {
-    flatDir {
-        dirs 'libs'
-    }
+    flatDir { dirs 'libs' }
 }
-
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
@@ -47,12 +49,13 @@ dependencies {
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
-   // implementation project(':capacitor-cordova-android-plugins')
-    implementation 'com.google.gms:google-services:4.4.2'
+
+    // NO colocar aquí: 'com.google.gms:google-services:4.4.2'  (es un plugin, no una dependencia)
 }
 
 apply from: 'capacitor.build.gradle'
 
+// Aplica el plugin de google-services SOLO si existe el json (perfecto para tu caso)
 try {
     def servicesJSON = file('google-services.json')
     if (servicesJSON.text) {
