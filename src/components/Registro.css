@@ -1,26 +1,25 @@
-/* Normaliza y evita scroll horizontal global */
-/* Aseguramos que el html y el body ocupen todo el alto */
+/* === Normaliza y evita scroll horizontal global === */
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
 }
-/* Fondo principal */
+
+/* === Fondo principal === */
 .registro-container {
   background-image: url('https://images.unsplash.com/photo-1521412644187-c49fa049e84d');
   background-size: cover;
   background-position: center;
   min-height: 100vh;
-   min-height: 100vh;
   display: flex;
-  justify-content: center; /* Centra horizontalmente */
-  align-items: center;     /* Centra verticalmente */
-  padding: 20px; /* importante en mobile para que no quede pegado a los bordes */
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
   background-color: #f0f0f0;
   box-sizing: border-box;
 }
 
-/* Tarjeta del formulario */
+/* === Tarjeta del formulario === */
 .registro-card {
   background-color: rgba(255, 255, 255, 0.95);
   border-radius: 16px;
@@ -35,39 +34,15 @@ html, body {
   box-sizing: border-box;
 }
 
-/* Título */
+/* === Título === */
 .registro-title {
   text-align: center;
   margin-bottom: 20px;
   color: #1d4ed8;
   font-size: 1.8rem;
 }
-/* Estilo para el select (sexo) */
-.registro-form select {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 15px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-  box-sizing: border-box;
-  background-color: #fff;
-  appearance: none; /* quita la flechita default en algunos navegadores */
-}
 
-/* Estilo para input de edad */
-.registro-form input[type="number"] {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 15px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-  box-sizing: border-box;
-}
-  
-
-/* Formulario */
+/* === Formulario === */
 .registro-form {
   width: 100%;
   box-sizing: border-box;
@@ -86,44 +61,70 @@ html, body {
   box-sizing: border-box;
 }
 
-/* Lista de sugerencias */
-.sugerencias-lista {
-  list-style: none;
-  padding: 0;
+/* === Estilo para select (sexo) === */
+.registro-form select {
+  width: 100%;
+  padding: 12px;
   margin-bottom: 15px;
+  border-radius: 10px;
   border: 1px solid #ccc;
-  border-radius: 8px;
+  font-size: 16px;
+  box-sizing: border-box;
   background-color: #fff;
-  max-height: 120px;
-  overflow-y: auto;
+  appearance: none;
 }
 
-.sugerencias-lista li {
-  padding: 10px;
-  cursor: pointer;
-  border-bottom: 1px solid #eee;
+/* === Estilo para input edad === */
+.registro-form input[type="number"] {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  box-sizing: border-box;
 }
 
-.sugerencias-lista li:hover {
-  background-color: #f0f0f0;
+/* === Alineación perfecta input + botón Mostrar/Ocultar === */
+:root {
+  --field-h: 44px; /* altura estándar para inputs */
 }
 
-/* Vista previa de imagen */
-.preview-container {
-  text-align: center;
+.input-pass-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 8px;
+  align-items: center;
   margin-bottom: 15px;
 }
 
-.preview-image {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 50%;
-  border: 2px solid #ccc;
+.input-pass-row > input {
+  height: var(--field-h);
+  padding: 0 12px;
+  line-height: var(--field-h);
+  box-sizing: border-box;
 }
 
-/* Botón */
-.registro-form button {
+/* === Botón Mostrar/Ocultar === */
+.toggle-pass-btn {
+  height: var(--field-h);
+  padding: 0 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #eee;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.toggle-pass-btn:hover { background: #e2e2e2; }
+.toggle-pass-btn:active { transform: scale(0.98); }
+
+/* === Botón enviar === */
+.registro-form button[type="submit"] {
   width: 100%;
   padding: 14px;
   background-color: #007bff;
@@ -135,12 +136,24 @@ html, body {
   cursor: pointer;
   transition: background 0.3s ease;
 }
-
-.registro-form button:hover {
+.registro-form button[type="submit"]:hover {
   background-color: #0056b3;
 }
 
-/* Botón volver */
+/* === Vista previa de imagen === */
+.preview-container {
+  text-align: center;
+  margin-bottom: 15px;
+}
+.preview-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+}
+
+/* === Botón Volver === */
 .volver-btn {
   margin-top: 10px;
   background: transparent;
@@ -150,33 +163,9 @@ html, body {
   cursor: pointer;
   text-decoration: underline;
 }
+.volver-btn:hover { color: #0056b3; }
 
-.volver-btn:hover {
-  color: #0056b3;
-}
-
-/* Celulares */
-@media (max-width: 480px) {
-  .registro-card {
-    padding: 16px;
-    max-width: 95%;
-  }
-
-  .registro-title {
-    font-size: 1.4rem;
-  }
-
-  .registro-form input,
-  .registro-form button {
-    font-size: 15px;
-    padding: 10px;
-  }
-
-  .preview-image {
-    width: 70px;
-    height: 70px;
-  }
-}
+/* === Modal === */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -184,12 +173,11 @@ html, body {
   z-index: 9999;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5); /* fondo oscuro translúcido */
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
 }
-
 .modal-content {
   background: white;
   padding: 24px;
@@ -200,13 +188,11 @@ html, body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   animation: fadeInModal 0.3s ease-in-out;
 }
-
 .modal-content p {
   margin-bottom: 16px;
   font-size: 16px;
   color: #333;
 }
-
 .modal-content button {
   padding: 10px 20px;
   border: none;
@@ -216,31 +202,39 @@ html, body {
   cursor: pointer;
   font-size: 15px;
 }
+.modal-content button:hover { background-color: #0056b3; }
 
-.modal-content button:hover {
-  background-color: #0056b3;
-}
-
-/* Animación de entrada */
+/* === Animación de entrada del modal === */
 @keyframes fadeInModal {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* === Responsivo === */
+@media (max-width: 480px) {
+  .registro-card {
+    padding: 16px;
+    max-width: 95%;
   }
-  to {
-    opacity: 1;
-    transform: scale(1);
+  .registro-title { font-size: 1.4rem; }
+  .registro-form input,
+  .registro-form button[type="submit"] {
+    font-size: 15px;
+    padding: 10px;
+  }
+  .preview-image {
+    width: 70px;
+    height: 70px;
   }
 }
 
-/* Forzar fondo blanco en modo oscuro */
+/* === Fondo blanco forzado en modo oscuro === */
 @media (prefers-color-scheme: dark) {
   .registro-card,
   .modal-content {
     background-color: #fff !important;
     color: #000 !important;
   }
-
   .registro-form input,
   .registro-form select,
   .registro-form input[type="file"],
@@ -248,8 +242,7 @@ html, body {
     background-color: #fff !important;
     color: #000 !important;
   }
-
   .registro-container {
-    background-color: #111 !important; /* o un fondo neutro */
+    background-color: #111 !important;
   }
 }

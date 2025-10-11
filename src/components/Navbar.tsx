@@ -225,7 +225,7 @@ useEffect(() => {
         <span className="badge">{aceptaciones}</span>
       )}
       {label.includes('Chat') && mensajesNoLeidos > 0 && (
-        <span className="badge">{mensajesNoLeidos}</span>
+        <span className="badge">{ }</span>
       )}
     </button>
   );
@@ -369,7 +369,7 @@ useEffect(() => {
     label={suscrito ? 'Desactivar' : 'Activar'}
   />
     )}
-    <IconButton onClick={handleLogout} icon={<FaSignOutAlt />} label="Salir" />
+   
   </div>
   {mostrarMenu && (
     <div className="menu" ref={menuRef}>
@@ -386,6 +386,10 @@ useEffect(() => {
         <FaBullhorn /> Publicitar mi cancha
       </div>
 
+      
+
+       
+
       <div className="menu-item" onClick={() => setMostrarModalSoporte(true)}>
     <FaEnvelopeOpenText /> Soporte técnico
   </div>
@@ -395,9 +399,16 @@ useEffect(() => {
           <FaPlus /> Cargar Cancha
         </div>
       )}
-    </div>
-  )}
+      <div className="menu-item" >
+           <button onClick={handleLogout} className="icon-button">
+        <FaSignOutAlt style={{ marginRight: "8px" }} />
+        Salir
+      </button>
+      </div>
 
+    </div>
+    
+  )}
 
 
   {mostrarModalSoporte && (

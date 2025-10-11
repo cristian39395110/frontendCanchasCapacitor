@@ -1,3 +1,4 @@
+//aceptaciones
 import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import { API_URL } from '../config';
@@ -151,8 +152,13 @@ const partidosFiltrados = partidosConAceptaciones.filter((partido) => {
 
               return (
                 <motion.div key={partido.id} layout className="tarjeta">
+
+
                   <div className="cabecera">
                     <div>
+                      <h1 className="deporte-titulo">
+  <strong>{partido.deporte?.nombre || 'No especificada'}</strong>
+</h1>
                       <p className="detalle">📍 <strong>Cancha:</strong> {partido.canchaNombreManual || partido.lugar}</p>
                       <p className="detalle">📫 <strong>Dirección:</strong> {partido.lugar || 'No especificada'}</p>
 
