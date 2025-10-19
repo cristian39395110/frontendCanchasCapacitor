@@ -370,3 +370,56 @@
 }
 
 }
+/* ===== Adjunto de historia en el chat ===== */
+.message-attachment {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 10px;
+  align-items: center;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 10px;
+  margin: 4px 0 6px;
+  overflow: hidden;
+}
+
+.message-attachment img {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 10px;
+  background: #000;
+}
+
+.attachment-meta {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.attachment-title {
+  font-weight: 700;
+  color: #fff;
+  font-size: 14px;
+}
+
+.attachment-caption {
+  color: #e7e9ee;
+  font-size: 13px;
+  line-height: 1.3;
+  word-break: break-word;
+  opacity: 0.95;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .message-attachment {
+    grid-template-columns: 84px 1fr;
+    padding: 8px;
+  }
+  .message-attachment img {
+    width: 84px;
+    height: 84px;
+  }
+}

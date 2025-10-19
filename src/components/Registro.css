@@ -1,21 +1,20 @@
-/* Normaliza y evita scroll horizontal global */
-/* Aseguramos que el html y el body ocupen todo el alto */
+/* Reset básico */
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
 }
+
 /* Fondo principal */
 .registro-container {
   background-image: url('https://images.unsplash.com/photo-1521412644187-c49fa049e84d');
   background-size: cover;
   background-position: center;
   min-height: 100vh;
-   min-height: 100vh;
   display: flex;
-  justify-content: center; /* Centra horizontalmente */
-  align-items: center;     /* Centra verticalmente */
-  padding: 20px; /* importante en mobile para que no quede pegado a los bordes */
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
   background-color: #f0f0f0;
   box-sizing: border-box;
 }
@@ -42,30 +41,6 @@ html, body {
   color: #1d4ed8;
   font-size: 1.8rem;
 }
-/* Estilo para el select (sexo) */
-.registro-form select {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 15px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-  box-sizing: border-box;
-  background-color: #fff;
-  appearance: none; /* quita la flechita default en algunos navegadores */
-}
-
-/* Estilo para input de edad */
-.registro-form input[type="number"] {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 15px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-  box-sizing: border-box;
-}
-  
 
 /* Formulario */
 .registro-form {
@@ -76,7 +51,9 @@ html, body {
 .registro-form input[type="text"],
 .registro-form input[type="email"],
 .registro-form input[type="password"],
-.registro-form input[type="file"] {
+.registro-form input[type="file"],
+.registro-form input[type="number"],
+.registro-form select {
   width: 100%;
   padding: 12px;
   margin-bottom: 15px;
@@ -84,36 +61,34 @@ html, body {
   border: 1px solid #ccc;
   font-size: 16px;
   box-sizing: border-box;
-}
-
-/* Lista de sugerencias */
-.sugerencias-lista {
-  list-style: none;
-  padding: 0;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
   background-color: #fff;
-  max-height: 120px;
-  overflow-y: auto;
 }
 
-.sugerencias-lista li {
-  padding: 10px;
+/* ====== OJITO DENTRO DEL INPUT ====== */
+.input-eye {
+  position: relative;
+}
+
+.input-eye > input {
+  padding-right: 44px; /* espacio para el ojito */
+}
+
+.eye-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
   cursor: pointer;
-  border-bottom: 1px solid #eee;
+  user-select: none;
+  font-size: 20px;
+  line-height: 1;
+  opacity: 0.75;
 }
 
-.sugerencias-lista li:hover {
-  background-color: #f0f0f0;
-}
+.eye-icon:hover { opacity: 1; }
+/* ==================================== */
 
 /* Vista previa de imagen */
-.preview-container {
-  text-align: center;
-  margin-bottom: 15px;
-}
-
 .preview-image {
   width: 80px;
   height: 80px;
@@ -122,7 +97,7 @@ html, body {
   border: 2px solid #ccc;
 }
 
-/* Botón */
+/* Botón principal */
 .registro-form button {
   width: 100%;
   padding: 14px;
@@ -135,10 +110,7 @@ html, body {
   cursor: pointer;
   transition: background 0.3s ease;
 }
-
-.registro-form button:hover {
-  background-color: #0056b3;
-}
+.registro-form button:hover { background-color: #0056b3; }
 
 /* Botón volver */
 .volver-btn {
@@ -150,46 +122,18 @@ html, body {
   cursor: pointer;
   text-decoration: underline;
 }
+.volver-btn:hover { color: #0056b3; }
 
-.volver-btn:hover {
-  color: #0056b3;
-}
-
-/* Celulares */
-@media (max-width: 480px) {
-  .registro-card {
-    padding: 16px;
-    max-width: 95%;
-  }
-
-  .registro-title {
-    font-size: 1.4rem;
-  }
-
-  .registro-form input,
-  .registro-form button {
-    font-size: 15px;
-    padding: 10px;
-  }
-
-  .preview-image {
-    width: 70px;
-    height: 70px;
-  }
-}
+/* Modal */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
   z-index: 9999;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5); /* fondo oscuro translúcido */
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
 }
-
 .modal-content {
   background: white;
   padding: 24px;
@@ -200,13 +144,11 @@ html, body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   animation: fadeInModal 0.3s ease-in-out;
 }
-
 .modal-content p {
   margin-bottom: 16px;
   font-size: 16px;
   color: #333;
 }
-
 .modal-content button {
   padding: 10px 20px;
   border: none;
@@ -216,31 +158,29 @@ html, body {
   cursor: pointer;
   font-size: 15px;
 }
+.modal-content button:hover { background-color: #0056b3; }
 
-.modal-content button:hover {
-  background-color: #0056b3;
-}
-
-/* Animación de entrada */
 @keyframes fadeInModal {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
-/* Forzar fondo blanco en modo oscuro */
+/* Celulares */
+@media (max-width: 480px) {
+  .registro-card { padding: 16px; max-width: 95%; }
+  .registro-title { font-size: 1.4rem; }
+  .registro-form input,
+  .registro-form button { font-size: 15px; padding: 10px; }
+  .preview-image { width: 70px; height: 70px; }
+}
+
+/* Evitar “modo oscuro invertido” */
 @media (prefers-color-scheme: dark) {
   .registro-card,
   .modal-content {
     background-color: #fff !important;
     color: #000 !important;
   }
-
   .registro-form input,
   .registro-form select,
   .registro-form input[type="file"],
@@ -248,8 +188,5 @@ html, body {
     background-color: #fff !important;
     color: #000 !important;
   }
-
-  .registro-container {
-    background-color: #111 !important; /* o un fondo neutro */
-  }
+  .registro-container { background-color: #111 !important; }
 }

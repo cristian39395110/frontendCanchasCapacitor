@@ -27,15 +27,25 @@ import { Keyboard } from '@capacitor/keyboard';
       tieneNoLeidos?: boolean;
     }
 
-    interface Mensaje {
-      id: number;
-      emisorId: number;
-      receptorId: number;
-      contenido: string;
-      fecha: string;
-       frontendId?: string; 
-      leido: boolean;
-    }
+interface Mensaje {
+  id: number | string;
+  emisorId?: number;
+  receptorId?: number;
+  usuarioId?: number; // para mensajes de partido
+  contenido?: string; // texto
+  mensaje?: string;   // algunos endpoints lo usan así
+  fecha?: string;
+  createdAt?: string;
+  leido: boolean;
+
+  // 🔽 soporte adjuntos
+  tipo?: 'texto' | 'sistema' | 'historia';
+  historiaId?: number;
+  mediaUrl?: string;
+  thumbUrl?: string;
+  autorNombre?: string;
+  frontendId?: string;
+}
 
 
 
@@ -738,60 +748,86 @@ useEffect(() => {
 
 </div>
 
- <div className="chat-messages" ref={mensajesRef}>
-{mensajes.map((msg, i) => {
-  const miId = Number(usuarioId);
-  const esMio = (tipoChat === 'usuario' && msg.emisorId === miId) ||
-                (tipoChat === 'partido' && msg.usuarioId === miId);
-  const contenido = msg.contenido || msg.mensaje || '';
-  const esUltimo = i === mensajes.length - 1;
+<div className="chat-messages" ref={mensajesRef}>
+  {mensajes.map((msg: Mensaje, i: number) => {
+    const miId = Number(usuarioId);
+    const esMio =
+      (tipoChat === 'usuario' && msg.emisorId === miId) ||
+      (tipoChat === 'partido' && msg.usuarioId === miId);
 
-  // 🔸 Mensaje de sistema
-  if (msg.tipo === 'sistema') {
+    const contenidoPlano = msg.contenido || msg.mensaje || '';
+    const fechaMostrar = formatearFecha(msg.createdAt || msg.fecha || new Date().toISOString());
+    const esUltimo = i === mensajes.length - 1;
+
+    // 1) Mensaje de sistema
+    if (msg.tipo === 'sistema') {
+      return (
+        <div key={i} className="message-bubble sistema" ref={esUltimo ? mensajesRef : null}>
+          <em>⚠ {contenidoPlano}</em>
+          <small className="message-date">{fechaMostrar}</small>
+        </div>
+      );
+    }
+
+    // 2) ¿Trae adjunto de historia?
+    const tieneAdjuntoHistoria = !!(msg.tipo === 'historia' || msg.mediaUrl || msg.thumbUrl);
+    const idNumerico = typeof msg.id === 'number' ? msg.id : Number(msg.id);
+
     return (
-      <div key={i} className="message-bubble sistema" ref={esUltimo ? mensajesRef : null}>
-        <em>⚠ {contenido}</em>
-        <small className="message-date">{formatearFecha(msg.createdAt || msg.fecha)}</small>
+      <div
+        key={i}
+        className={`message-bubble ${esMio ? 'sent' : 'received'} ${
+          !esMio && tipoChat === 'partido' && idNumerico && !mensajeIdsLeidos.includes(idNumerico)
+            ? 'no-leido'
+            : ''
+        }`}
+        ref={esUltimo ? (tipoChat === 'partido' ? ultimoMensajePartidoRef : mensajesRef) : null}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          if (esMio && typeof msg.id === 'number' && window.confirm('¿Eliminar este mensaje?')) {
+            eliminarMensaje(msg.id);
+          } else if (!esMio) {
+            toast.error('❌ Solo podés eliminar tus propios mensajes');
+          }
+        }}
+      >
+        {/* Autor visible en chats de partido para mensajes recibidos */}
+        {!esMio && tipoChat === 'partido' && (
+          <div className="message-author">
+            <strong>{(msg as any).Usuario?.nombre || 'Jugador'}:</strong>
+          </div>
+        )}
+
+        {/* Tarjeta adjunta de historia */}
+        {tieneAdjuntoHistoria && (
+          <div className="message-attachment" onClick={(e) => e.stopPropagation()}>
+            <img
+              src={(msg.thumbUrl || msg.mediaUrl) as string}
+              alt="Historia"
+              onError={(ev) => {
+                (ev.currentTarget as HTMLImageElement).style.display = 'none';
+              }}
+            />
+            <div className="attachment-meta">
+              <div className="attachment-title">
+                Historia{msg.autorNombre ? ` de ${msg.autorNombre}` : ''}
+              </div>
+              {contenidoPlano && <div className="attachment-caption">{contenidoPlano}</div>}
+            </div>
+          </div>
+        )}
+
+        {/* Texto normal si no hay adjunto */}
+        {!tieneAdjuntoHistoria && <div>{contenidoPlano}</div>}
+
+        <small className="message-date">{fechaMostrar}</small>
       </div>
     );
-  }
+  })}
 
-  // 🔸 Mensaje normal (usuario o partido)
-  return (
-    <div
-      key={i}
-      className={`message-bubble ${esMio ? 'sent' : 'received'} ${!esMio && tipoChat === 'partido' && !mensajeIdsLeidos.includes(msg.id) ? 'no-leido' : ''}`}
+  <div style={{ height: '20px' }} />
+</div>
 
-      ref={esUltimo ? (tipoChat === 'partido' ? ultimoMensajePartidoRef : mensajesRef) : null}
-
-      onContextMenu={(e) => {
-        e.preventDefault();
-        if (esMio && window.confirm('¿Eliminar este mensaje?')) {
-          eliminarMensaje(msg.id);
-        } else if (!esMio) {
-          toast.error('❌ Solo podés eliminar tus propios mensajes');
-        }
-      }}
-    >
-      {!esMio && tipoChat === 'partido' && (
-        <div className="message-author">
-          <strong>{msg.Usuario?.nombre || 'Jugador'}:</strong>
-        </div>
-      )}
-      <div>{contenido}</div>
-      <small className="message-date">{formatearFecha(msg.createdAt || msg.fecha)}</small>
-    </div>
-    
-  );
-  
-
-})}
-
-
-
-<div style={{ height: '20px' }}></div>
-
-                  </div>
                  {tipoChat === 'partido' && !puedeHablar ? (
   <div className="mensaje-bloqueado">
     ⚠ Fuiste removido del partido. No podés enviar mensajes.

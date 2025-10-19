@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import { useNavigate, } from 'react-router-dom';
 import './MuroGeneralPage.css';
     import { socket } from '../utils/socket'; // si ya lo tenés
+    import Historias from "../components/Historias";
 
 
 import { useLocation } from 'react-router-dom';
@@ -180,10 +181,12 @@ const handlePublicar = async () => {
       <Navbar />
       <div className="muro-general-container">
         <h2 className="titulo-muro">📰 Muro general</h2>
+          <Historias />
 
         <div className="formulario-publicar">
           <h3>📤 Publicá algo en el muro</h3>
           <textarea
+          className="formu"
             placeholder="¿Qué estás pensando?"
             value={nuevaPublicacion}
             onChange={(e) => setNuevaPublicacion(e.target.value)}

@@ -46,7 +46,7 @@
   }
 
   .formulario-publicar textarea {
-    width: 100%;
+    width: 93%;
     min-height: 80px;
     padding: 10px;
     margin-bottom: 10px;
@@ -248,7 +248,9 @@
     --comentario-texto: #ccc;
     --comentario-vermas: #61dafb;
   }
+/*historias*/
 
+/*Fin historias*/
   .toggle-comentarios {
     display: block; /* Esto permite que el botón ocupe todo el ancho */
     margin: 10px auto; /* Esto lo centra horizontalmente */

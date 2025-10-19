@@ -1,18 +1,39 @@
+
+/* Navbar SIEMPRE arriba y cubriendo bien el borde superior */
 .navbar {
+  position: sticky;            /* ✅ solo fixed (no mezclar con sticky) */
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2000;
+
   background: #1F2937;
-     z-index: 2000;
-  color: white;
-  padding: 10px;
+  color: #fff;
+
+  /* No uses %: dejá que el alto sea el del contenido */
+  /* height: 10%;  ❌ */
+  padding: calc(env(safe-area-inset-top, 0px) + 10px) 10px 10px; /* notch-safe en iOS */
+
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
-  max-width: 100vw;
-  box-sizing: border-box;
-   position: sticky;  
-  top: 0;
 
+  width: 100%;
+  box-sizing: border-box;
 }
+
+/* Truco: tapa cualquier “línea” de 1–2 px que se vea arriba */
+.navbar::before {
+  content: "";
+  position: absolute;
+  top: -2px;     /* cubre el borde del viewport si aparece */
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #1F2937;
+  pointer-events: none;
+}
+
 
 
 /* Topbar con título y hamburguesa */

@@ -9,6 +9,11 @@
   import { Capacitor } from '@capacitor/core';
   import 'react-toastify/dist/ReactToastify.css';
   import { toast } from 'react-toastify';
+import ReferidosMenuItem from "../components/ReferidosMenuItem";
+import "./ReferidosMenuItem.css";
+
+
+  
 
 
 
@@ -19,7 +24,8 @@
     FaSignOutAlt, FaBars, FaEnvelopeOpenText, FaKey, FaAt,FaThLarge,FaBullhorn 
   } from 'react-icons/fa';
   import { Preferences } from '@capacitor/preferences';
-  const socket = io(API_URL);
+  import ReferidoQuick from './ReferidoQuick';
+const socket = io(API_URL);
 
   const Navbar: React.FC = () => {
     const navigate = useNavigate();
@@ -319,8 +325,13 @@ useEffect(() => {
     className="navbar-logo"
   />
 
-          Deportes
         </h2>
+          {/* 🎁 Botón centrado en el topbar */}
+  {usuarioId && (
+    <div className="navbar-center-ref">
+      <ReferidoQuick codigo={`MC${String(usuarioId).padStart(8, '0')}`} />
+    </div>
+  )}
         <FaBars className="menu-icon" onClick={() => setMostrarMenu(!mostrarMenu)} />
       </div>
 
@@ -376,9 +387,23 @@ useEffect(() => {
       <div className="menu-item" onClick={() => navigate('/EditarPerfilPage')}>
         <FaAt /> Modificar perfil
       </div>
+
       <div className="menu-item" onClick={() => navigate('/perfil')}>
         <FaKey /> Perfil
       </div>
+      {usuarioId && (
+<ReferidosMenuItem
+  usuarioId={Number(usuarioId ?? 0)}
+  apiUrl={API_URL}
+  soloVerificados
+  distinctDevice
+  classNameItem="menu-item"
+  classNameBadge="referidos-badge"   // 👈 nueva clase
+/>
+
+
+)}
+
       <div className="menu-item" onClick={() => navigate('/calificar-jugadores')}>
         <FaKey /> Calificar Jugadores
       </div>

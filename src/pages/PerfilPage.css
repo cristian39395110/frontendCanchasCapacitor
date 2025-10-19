@@ -785,3 +785,249 @@ body.dark .comentario {
 body.dark .comentario strong {
   color: #93c5fd; /* azul claro para destacar el nombre del comentarista */
 }
+/* ====== Modal “Datos del perfil” ====== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000; /* alto para quedar por encima de todo */
+}
+
+.modal-contenido {
+  background: #fff;
+  color: #111827;
+  padding: 20px;
+  border-radius: 12px;
+  width: 92%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+}
+
+body.dark .modal-contenido {
+  background: #1e293b;
+  color: #e5e7eb;
+}
+
+.cerrar-modal {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+/* fila de dato en el modal */
+.fila-dato {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  background: #f9fafb;
+}
+
+body.dark .fila-dato {
+  border-color: #334155;
+  background: #0b1220;
+}
+
+.fila-dato-label {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.fila-dato-valor {
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+body.dark .fila-dato-valor { color: #cbd5e1; }
+
+/* chips de visibilidad */
+.chip-vis {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.chip-vis.vis {
+  background-color: #dcfce7;
+  color: #166534;
+}
+.chip-vis.oc {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Botón “Ver datos del perfil” – ya usabas la clase, lo dejamos lindo */
+.btn-ver-reseñas {
+  background-color: #4f46e5;
+  color: white;
+  padding: 10px 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  margin: 10px auto 0;
+  display: block;
+  transition: background-color .2s ease, transform .05s ease;
+}
+.btn-ver-reseñas:hover { background-color: #4338ca; }
+.btn-ver-reseñas:active { transform: scale(0.98); }
+.video-thumb-wrap {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.video-miniatura {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  display: block;
+}
+
+/* ▶️ Botón play centrado exacto */
+.video-play-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 64px;
+  height: 64px;
+  border-radius: 9999px;
+  border: none;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform .08s ease, background .2s ease;
+}
+
+.video-thumb-wrap:hover .video-play-badge {
+  background: rgba(0,0,0,0.7);
+  transform: translate(-50%, -50%) scale(1.04);
+}
+.modal-video {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-video video {
+  max-width: 95%;
+  max-height: 90%;
+  border-radius: 10px;
+}
+
+/* ✖️ Botón cerrar */
+.modal-video-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 9999px;
+  background: rgba(255,255,255,0.18);
+  color: #fff;
+  font-size: 20px;
+  line-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(2px);
+}
+
+.modal-video-close:hover {
+  background: rgba(255,255,255,0.3);
+}
+/* ===== Dark mode overrides (clase body.dark) ===== */
+
+/* Fondo del overlay un toque más oscuro */
+body.dark .modal-overlay { background: rgba(0,0,0,0.85); }
+
+/* Caja del modal de datos */
+body.dark .modal-contenido {
+  background: #0b1220;          /* más oscuro que #1e293b */
+  color: #e5e7eb;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+  border: 1px solid #172038;    /* sutil borde en dark */
+}
+
+/* Chips de visibilidad (ya tenés, pero ajusto contraste) */
+body.dark .chip-vis.vis { background: rgba(34,197,94,0.18); color: #a7f3d0; }
+body.dark .chip-vis.oc  { background: rgba(239,68,68,0.18); color: #fecaca; }
+
+/* Filas del modal de datos */
+body.dark .fila-dato       { background: #0f172a; border-color: #162034; }
+body.dark .fila-dato-label { color: #cbd5e1; }
+body.dark .fila-dato-valor { color: #e2e8f0; }
+
+/* Botón cerrar del modal de datos */
+body.dark .cerrar-modal {
+  background: #ef4444;
+  color: #fff;
+}
+body.dark .cerrar-modal:hover { filter: brightness(1.05); }
+
+/* Modal de video: fondo y botón de cierre */
+body.dark .modal-video { background-color: rgba(0,0,0,0.92); }
+body.dark .modal-video video { box-shadow: 0 10px 40px rgba(0,0,0,0.7); }
+body.dark .modal-video-close {
+  background: rgba(255,255,255,0.10);
+  color: #e5e7eb;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+body.dark .modal-video-close:hover { background: rgba(255,255,255,0.18); }
+
+/* Botón play centrado: más contraste en dark */
+body.dark .video-play-badge {
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+}
+
+/* ===== Fallback opcional si NO usás body.dark pero el SO está en modo oscuro ===== */
+@media (prefers-color-scheme: dark) {
+  body:not(.dark) .modal-overlay { background: rgba(0,0,0,0.85); }
+  body:not(.dark) .modal-contenido {
+    background: #0b1220; color: #e5e7eb; border: 1px solid #172038;
+  }
+  body:not(.dark) .fila-dato { background: #0f172a; border-color: #162034; }
+  body:not(.dark) .fila-dato-valor { color: #e2e8f0; }
+  body:not(.dark) .modal-video { background-color: rgba(0,0,0,0.92); }
+  body:not(.dark) .modal-video-close {
+    background: rgba(255,255,255,0.10); color: #e5e7eb; border: 1px solid rgba(255,255,255,0.12);
+  }
+  body:not(.dark) .video-play-badge {
+    background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: #fff;
+  }
+}

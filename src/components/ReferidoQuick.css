@@ -1,0 +1,75 @@
+/* ===== Botón redondo (fila de acciones) ===== */
+.icon-round{
+  width:38px;height:38px;border-radius:50%;
+  border:none;background:#2b394a;color:#fff;
+  font-size:18px;display:flex;align-items:center;justify-content:center;
+}
+
+/* ===== Overlay + Modal ===== */
+.rq-overlay{
+  position:fixed; inset:0; z-index:9999;
+  background:rgba(0,0,0,.5);
+  display:flex; align-items:center; justify-content:center;
+  padding: env(safe-area-inset-top, 12px) 12px env(safe-area-inset-bottom, 12px);
+}
+
+.rq-modal{
+  width:min(92vw, 420px);        /* móvil: usa el 92% – desktop: máx 420px */
+  max-height: 80vh;              /* que nunca tape todo */
+  overflow:auto;                 /* scroll interno si hace falta */
+  background:#1f2a37; color:#fff;
+  border:1px solid #2b394a; border-radius:12px;
+  padding:14px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.35);
+}
+
+.rq-modal h4{ margin:0 0 6px; font-size:1.05rem; }
+.rq-modal p{ margin:4px 0 8px; opacity:.9; }
+
+/* Campo con URL (seleccionable) */
+.rq-modal input{
+  width:100%; padding:10px; border-radius:8px;
+  border:1px solid #2b394a; background:#0f1720; color:#fff;
+  margin:8px 0; font-size:.95rem;
+  word-break: break-all;      /* links largos no desbordan */
+}
+
+/* Botonera */
+.rq-modal .row{
+  display:flex; gap:8px; align-items:stretch;
+}
+.rq-modal button{
+  background:#ffd34e; color:#1a1a1a;
+  border:none; border-radius:8px;
+  padding:10px 12px; font-weight:700; cursor:pointer;
+}
+.rq-modal .full{ width:100%; margin-top:8px; }
+
+/* ===== Responsividad ===== */
+
+/* Móviles chicos (≤ 380px) */
+@media (max-width: 380px){
+  .rq-modal{ width: 94vw; padding:12px; }
+  .rq-modal h4{ font-size:1rem; }
+  .rq-modal input{ font-size:.9rem; padding:9px; }
+  .rq-modal .row{ flex-direction:column; }   /* botones uno abajo del otro */
+  .rq-modal button{ padding:9px 10px; }
+}
+
+/* Horizontal móvil / tablets chicas (altura menor) */
+@media (max-height: 560px){
+  .rq-modal{ max-height: 86vh; }
+}
+
+/* Tablets / desktop */
+@media (min-width: 768px){
+  .rq-modal{ width:min(80vw, 480px); }
+}
+
+/* Accesibilidad: reducir animaciones si el usuario las evita */
+@media (prefers-reduced-motion: no-preference){
+  .rq-overlay{ animation: rqFade .15s ease-out; }
+  .rq-modal{ animation: rqPop .18s ease-out; }
+}
+@keyframes rqFade{ from{opacity:0} to{opacity:1} }
+@keyframes rqPop{ from{transform:translateY(6px);opacity:.98} to{transform:none;opacity:1} }

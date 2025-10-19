@@ -1,0 +1,165 @@
+/* Item del menú */
+.referidos-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #2b394a;
+  color: #070707;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.referidos-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Badge circular, fijo al final a la derecha */
+.referidos-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffd34e;
+  color: #1a1a1a;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1;
+}
+
+/* Overlay del modal */
+.referidos-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+
+/* Modal */
+.referidos-modal {
+  position: relative;
+  width: min(92vw, 420px);
+  max-height: 80vh;
+  background: #1f2a37; /* base modal */
+  color: #fff;
+  border-radius: 12px;
+  border: 1px solid #2b394a;
+  padding: 16px;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  animation: aparecer 0.25s ease-out;
+}
+
+@keyframes aparecer {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.referidos-close {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-size: 22px;
+  cursor: pointer;
+  color: #ffd34e;
+  transition: 0.2s;
+}
+.referidos-close:hover { transform: scale(1.1); }
+
+.referidos-info {
+  opacity: 0.85;
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+/* Header de métricas y acción */
+.referidos-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.referidos-total {
+  background: #0f1720;
+  border: 1px solid #2b394a;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.referidos-restantes {
+  opacity: 0.9;
+  font-size: 0.9rem;
+}
+
+/* Botón de reclamar premio */
+.referidos-claim-btn {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+  box-shadow: 0 4px 10px rgba(22, 163, 74, 0.35);
+}
+.referidos-claim-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+.referidos-claim-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+}
+
+/* Lista de referidos */
+.referidos-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Item de referido con color diferente */
+.referido-item {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 12px;
+  background: #0b1220;          /* un poco más oscuro para contrastar */
+  border: 1px solid #2b394a;
+  border-radius: 10px;
+}
+
+/* Nombre con color destacado (otro color a pedido) */
+.referido-nombre {
+  font-weight: 700;
+  color: #60a5fa;               /* 🔵 azul claro para destacar los nombres */
+  letter-spacing: 0.2px;
+}
+
+/* Fecha */
+.referido-fecha {
+  opacity: 0.8;
+  color: #cbd5e1;
+}
+
+/* Responsive */
+@media (max-width: 420px) {
+  .referidos-modal { width: 94vw; padding: 14px; }
+  .referidos-item { padding: 9px 10px; }
+  .referidos-badge { font-size: 12px; }
+}
