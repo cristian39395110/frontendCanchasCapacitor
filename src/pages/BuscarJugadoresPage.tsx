@@ -31,6 +31,8 @@ import 'react-toastify/dist/ReactToastify.css';
   const [categorias, setCategorias] = useState<string[]>([]);
   const [enviando, setEnviando] = useState(false);
   const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
+  const [precio, setPrecio] = useState('');
+
 
 
 
@@ -86,7 +88,11 @@ import 'react-toastify/dist/ReactToastify.css';
          setEnviando(false);
         return;
       }
-
+if (cantidadJugadores <= 0) {
+  toast.error('Ingresá una cantidad de jugadores válida.');
+  setEnviando(false);
+  return;
+}
       if (!latitud || !longitud) {
         toast.error('Intenta marcar la ubicación en el mapa');
          setEnviando(false);
@@ -101,11 +107,7 @@ import 'react-toastify/dist/ReactToastify.css';
           return;
         }
  const fechaSinZona = fecha;       // "2025-07-19"
-  const horaSinZona = hora;  
-  console.log("fechaSinZona")   
-  console.log(fechaSinZona)   
-  console.log("horaSinZona") 
-  console.log(horaSinZona) 
+
 
 
   const res = await fetch(`${API_URL}/api/partidos/cantidad`, {
@@ -128,20 +130,30 @@ import 'react-toastify/dist/ReactToastify.css';
         if (rangoEdad.length === 0 && categorias.length === 0) {
       toast.warning('⚠️ No seleccionaste edad ni categoría. Se invitará a todos los jugadores por defecto.');
        setEnviando(false);
+       return;
     } else if (rangoEdad.length === 0) {
       toast.warning('⚠️ No seleccionaste rango de edad. Se invitará a todas las edades.');
        setEnviando(false);
+       return;
     } else if (categorias.length === 0) {
       toast.warning('⚠️ No seleccionaste categoría. Se invitará a todas las categorías.');
        setEnviando(false);
+       return;
     }
   const fechaSinZona = fecha;       // "2025-07-19"
   const horaSinZona = hora;  
-  console.log("fechaSinZona")   
-  console.log(fechaSinZona)   
-  console.log("horaSinZona") 
-  console.log(horaSinZona)  // "15:30"
-  // ejemplo: "2025-07-19T15:30:00"
+
+const precioNormalizado =
+  precio.trim() === '' ? null : Number(precio);
+
+if (precioNormalizado !== null && (Number.isNaN(precioNormalizado) || precioNormalizado < 0)) {
+  toast.error('Precio inválido (no puede ser negativo ni texto).');
+  setEnviando(false);
+  return;
+}
+
+
+
       const partidoData = {
         fecha: fechaSinZona,
         hora:horaSinZona,
@@ -157,7 +169,7 @@ import 'react-toastify/dist/ReactToastify.css';
     categorias,
         canchaId: canchaSeleccionada?.id || null,
   canchaNombreManual: canchaSeleccionada?.nombre || canchaManual || null,
-
+  precio: precioNormalizado,
         sexo,
         ubicacionManual,
       
@@ -174,7 +186,10 @@ import 'react-toastify/dist/ReactToastify.css';
       .then(data => {
     if (!esPremium && data.cantidad >= 2) {
       setMostrarModalPremium(true);
-      return;
+       setEnviando(false);   // 👈 reactivar botón
+    return;
+
+      
     }
 
     toast.success('¡Partido creado y notificaciones enviadas!');
@@ -184,6 +199,8 @@ import 'react-toastify/dist/ReactToastify.css';
     setLugar('');
     setFecha('');
     setHora('');
+    setPrecio('');  // 👈 limpia el input de precio
+
       setEnviando(false); //
   }
   )
@@ -365,6 +382,17 @@ import 'react-toastify/dist/ReactToastify.css';
 
               <label>Hora</label>
               <input type="time" value={hora} onChange={(e) => setHora(e.target.value)} style={{ width: '100%' }} />
+  
+              
+                            <input
+                type="number"
+                min={0}
+                placeholder="Precio por jugador (0 = Gratis)"
+                value={precio}
+                onChange={(e) => setPrecio(e.target.value)}
+                style={{ width: '100%', marginBottom: '15px',marginTop:'20px' }}
+              />
+
 
               <label>Cantidad de jugadores</label>
               <input type="number" value={cantidadJugadores} onChange={(e) => setCantidadJugadores(Number(e.target.value))} style={{ width: '100%' }} />

@@ -1,9 +1,4 @@
 
-.buscar-jugadores-container {
-  padding: 20px;
-  max-width: 480px;
-  margin: 80px auto 40px auto;
-}
 /* Estilo uniforme para inputs tipo checkbox */
 .checkbox-group {
   display: flex;
@@ -131,8 +126,9 @@
 
 @media screen and (max-width: 480px) {
   .buscar-jugadores-container {
-    margin-top: 100px;
-    padding: 12px;
+    margin-top: 0px;
+    padding: 20px;
+    margin-bottom: 20px;
   }
 
   .buscar-jugadores-container h2,

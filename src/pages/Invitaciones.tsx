@@ -21,6 +21,18 @@ const formatearFecha = (fecha: string) => {
   return `${Number(dia)} de ${obtenerNombreMes(mes)} de ${año}`;
 };
 
+const mostrarPrecio = (p: number | string | null | undefined): string => {
+  // Si no vino precio, lo mostramos como Gratis (o "A confirmar" si preferís)
+  if (p === null || p === undefined || p === '') return 'Gratis'; // o 'A confirmar'
+
+  const n = Number(p);
+  if (Number.isNaN(n)) return 'Gratis'; // evita NaN en casos raros
+
+  if (n === 0) return 'Gratis';
+  return `ARS ${n.toLocaleString('es-AR')}`;
+};
+
+
 const obtenerNombreMes = (mes: string) => {
   const nombres = [
     'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
@@ -137,11 +149,11 @@ const aceptarInvitacion = (partidoId: number) => {
                 <p><strong>📍 Direccion:</strong> {inv.lugar}</p>
                 <p><strong>🏟 Cancha:</strong> {inv.nombreCancha}</p>
                 <p><strong>📅 Fecha:</strong> {formatearFecha(inv.fecha)}</p>
-
-                <p><strong>⏰ Hora:</strong> {inv.hora}</p>
+                <p><strong>💸 Precio:</strong> {mostrarPrecio(inv.precio)}</p>
+                 <p><strong>⏰ Hora:</strong> {inv.hora}</p>
                 <p><strong>👤 Organizador:</strong> {inv.organizador}</p>
                 <p><strong>🧍 Sexo:</strong> {inv.sexo === 'todos' ? 'Todos' : inv.sexo}</p>
-<p><strong>🎂 Rango de edad:</strong> {inv.rangoEdad || 'Sin restricción'}</p>
+                <p><strong>🎂 Rango de edad:</strong> {inv.rangoEdad || 'Sin restricción'}</p>
 
                 {inv.cantidadJugadores && (
                   <p><strong>👥 Jugadores requeridos:</strong> {inv.cantidadJugadores}</p>

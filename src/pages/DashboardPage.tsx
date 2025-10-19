@@ -130,7 +130,7 @@ const DashboardPage: React.FC = () => {
           onChange={(e) => setFiltro(e.target.value)}
           style={{
             padding: '10px',
-            width: '100%',
+            width: '90%',
             maxWidth: '400px',
             margin: '0 auto 20px auto',
             display: 'block',

@@ -160,7 +160,7 @@ const partidosFiltrados = partidosConAceptaciones.filter((partido) => {
 </h1>
                       <p className="detalle">📍 <strong>Cancha:</strong> {partido.canchaNombreManual || partido.lugar}</p>
                       <p className="detalle">📫 <strong>Dirección:</strong> {partido.lugar || 'No especificada'}</p>
-
+                       <p className="detalle">📫 <strong>Precio:</strong> {partido.precio} </p>
                       <p className="detalle">🌎 <strong>Localidad:</strong> {partido.localidad}</p>
                       <p className="detalle">🚻 <strong>Sexo:</strong> {partido.sexo}</p>
                       <p className="detalle">
