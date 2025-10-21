@@ -12,12 +12,9 @@ type Props = {
   apiUrl: string;
   soloVerificados?: boolean;
   distinctDevice?: boolean;
-  // Para integrarlo con tu menú existente:
-  classNameItem?: string;   // por defecto "menu-item"
-  classNameBadge?: string;  // por defecto "badge"
+  classNameItem?: string;
+  classNameBadge?: string;
 };
-
-const PRIZE_THRESHOLD = 40;
 
 const ReferidosMenuItem: React.FC<Props> = ({
   usuarioId,
@@ -32,6 +29,9 @@ const ReferidosMenuItem: React.FC<Props> = ({
   const [lista, setLista] = useState<Referido[]>([]);
   const [loading, setLoading] = useState(false);
   const [claiming, setClaiming] = useState(false);
+  const [claimed, setClaimed] = useState<number[]>([]); // ✅ definir ANTES de derivadas
+
+  const TIERS = [40, 100]; // podés sumar 200, 500, etc.
 
   const q = useMemo(() => {
     const params = new URLSearchParams();
@@ -40,19 +40,48 @@ const ReferidosMenuItem: React.FC<Props> = ({
     return params.toString();
   }, [soloVerificados, distinctDevice]);
 
+  // Cargar conteo
   useEffect(() => {
     if (!usuarioId) return;
     (async () => {
       try {
         const r = await fetch(`${apiUrl}/api/usuarios/${usuarioId}/referidos/count?${q}`);
         const d = await r.json();
-        const total = Number(d?.total || 0);
-        setCount(total);
+        setCount(Number(d?.total || 0));
       } catch {
         setCount(0);
       }
     })();
   }, [usuarioId, apiUrl, q]);
+
+  // Cargar tiers reclamados
+  useEffect(() => {
+    if (!usuarioId) return;
+    (async () => {
+      try {
+        const r = await fetch(`${apiUrl}/api/usuarios/${usuarioId}/referidos/premios`);
+        const d = await r.json(); // { claimed: number[] }
+        setClaimed(Array.isArray(d?.claimed) ? d.claimed : []);
+      } catch {
+        setClaimed([]);
+      }
+    })();
+  }, [usuarioId, apiUrl]);
+
+  // Derivadas
+  const claimableTier = TIERS.find((t) => count >= t && !claimed.includes(t)) ?? null;
+  const nextTier = TIERS.find((t) => count < t) ?? null;
+
+  // Progreso hacia el próximo tier (o 100% si no hay próximo)
+  const currentBase = (() => {
+    const alcanzados = [0, ...TIERS.filter((t) => count >= t)];
+    return Math.max(...alcanzados);
+  })();
+  const target = nextTier ?? currentBase;
+  const tramo = Math.max(1, target - currentBase);
+  const progresoRaw = (count - currentBase) / tramo;
+  const progreso = nextTier ? Math.max(0, Math.min(1, progresoRaw)) : 1; // ✅ 100% si no hay próximo
+  const porcentaje = Math.round(progreso * 100);
 
   const abrirModal = async () => {
     setOpen(true);
@@ -68,35 +97,40 @@ const ReferidosMenuItem: React.FC<Props> = ({
     }
   };
 
-  const puedeReclamar = count >= PRIZE_THRESHOLD;
+  const reclamarPremio = async () => {
+    if (!claimableTier || claiming) return;
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Debes iniciar sesión para reclamar el premio.");
+      return;
+    }
+    setClaiming(true);
+    try {
+      const r = await fetch(`${apiUrl}/api/usuarios/${usuarioId}/referidos/reclamar`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ tier: claimableTier }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d?.error || "No se pudo reclamar el premio");
 
- const reclamarPremio = async () => {
-  if (!puedeReclamar || claiming) return;
-  setClaiming(true);
-  try {
-    const token = localStorage.getItem("token"); // tu JWT guardado tras login
-    const r = await fetch(`${apiUrl}/api/usuarios/${usuarioId}/referidos/reclamar`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`, // 🔒 token aquí
-      },
-      body: JSON.stringify({ total: count }),
-    });
-    const d = await r.json();
-    if (!r.ok) throw new Error(d?.error || "No se pudo reclamar el premio");
-    alert(d?.mensaje || "🎉 ¡Premio reclamado con éxito!");
-  } catch (e: any) {
-    alert(e?.message || "No se pudo reclamar el premio en este momento.");
-  } finally {
-    setClaiming(false);
-  }
-};
+      const nuevo = [...new Set([...claimed, claimableTier])];
+      setClaimed(nuevo);
 
+      alert(d?.mensaje || `🎉 ¡Premio de ${claimableTier} referidos reclamado!`);
+    } catch (e: any) {
+      alert(e?.message || "No se pudo reclamar el premio en este momento.");
+    } finally {
+      setClaiming(false);
+    }
+  };
 
   return (
     <>
-      {/* Ítem del menú (usa tus clases) */}
+      {/* Ítem del menú */}
       <div className={`${classNameItem} referidos-item`} onClick={abrirModal}>
         <FaUsers /> Mis referidos
         <span className={`${classNameBadge} referidos-badge`} style={{ marginLeft: "auto" }}>
@@ -108,7 +142,9 @@ const ReferidosMenuItem: React.FC<Props> = ({
       {open && (
         <div className="referidos-overlay" onClick={() => setOpen(false)}>
           <div className="referidos-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="referidos-close" onClick={() => setOpen(false)}>×</div>
+            <div className="referidos-close" onClick={() => setOpen(false)}>
+              ×
+            </div>
 
             <h3 style={{ marginTop: 0 }}>👥 Tus referidos</h3>
 
@@ -120,23 +156,59 @@ const ReferidosMenuItem: React.FC<Props> = ({
             {/* Estado / Premio */}
             <div className="referidos-head">
               <div className="referidos-total">
-                <strong>{count}</strong> / {PRIZE_THRESHOLD}
+                <strong>{count}</strong>
+                {nextTier ? <> / {nextTier}</> : <>+</>}
               </div>
 
-              {puedeReclamar ? (
+              {claimableTier ? (
                 <button
                   className="referidos-claim-btn"
                   onClick={reclamarPremio}
                   disabled={claiming}
                 >
-                  {claiming ? "Reclamando..." : "🎁 Reclamar premio"}
+                  {claiming ? "Reclamando..." : `🎁 Reclamar premio (${claimableTier})`}
                 </button>
               ) : (
                 <div className="referidos-restantes">
-                  Te faltan <strong>{PRIZE_THRESHOLD - count}</strong> para el premio
+                  {nextTier ? (
+                    <>
+                      Te faltan <strong>{nextTier - count}</strong> para el premio de {nextTier}
+                    </>
+                  ) : (
+                    <>¡Seguí sumando! 🎯</>
+                  )}
                 </div>
               )}
             </div>
+
+            {/* Barra de progreso */}
+            <div
+              className="ref-progress"
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={porcentaje}
+            >
+              <div className="ref-progress-fill" style={{ width: `${porcentaje}%` }} />
+            </div>
+            <p className="ref-progress-label">
+              {nextTier ? (
+                <>
+                  Progreso: <strong>{porcentaje}%</strong> ({count - currentBase}/
+                  {target - currentBase})
+                </>
+              ) : (
+                <>¡Máximo alcanzado de momento! 💪</>
+              )}
+            </p>
+
+            {/* Mensaje entre 40 y 100 (una sola vez) */}
+            {count >= 40 && count < 100 && !claimed.includes(100) && (
+              <p style={{ marginTop: 6, opacity: 0.9 }}>
+                🔔 Ya alcanzaste el de <strong>40</strong>. A los <strong>100</strong> tenés otro
+                premio.
+              </p>
+            )}
 
             {loading ? (
               <p>Cargando…</p>
@@ -146,7 +218,6 @@ const ReferidosMenuItem: React.FC<Props> = ({
               <ul className="referidos-list">
                 {lista.map((r) => (
                   <li key={r.id} className="referido-item">
-                    {/* nombre en color destacado */}
                     <span className="referido-nombre">{r.nombre || "Usuario"}</span>
                     <small className="referido-fecha">
                       Alta: {new Date(r.createdAt).toLocaleDateString()}

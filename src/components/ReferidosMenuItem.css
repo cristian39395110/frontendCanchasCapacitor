@@ -163,3 +163,26 @@
   .referidos-item { padding: 9px 10px; }
   .referidos-badge { font-size: 12px; }
 }
+/* Barra de progreso referidos */
+.ref-progress {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: #0f1720;           /* fondo */
+  border: 1px solid #2b394a;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.ref-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+  transition: width 220ms ease;
+}
+
+.ref-progress-label {
+  margin: 6px 0 0 0;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}

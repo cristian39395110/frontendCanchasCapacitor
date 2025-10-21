@@ -31,8 +31,8 @@ import 'react-toastify/dist/ReactToastify.css';
   const [categorias, setCategorias] = useState<string[]>([]);
   const [enviando, setEnviando] = useState(false);
   const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
-  const [precio, setPrecio] = useState('');
-
+// [NUEVO] Precio por jugador (input como string para permitir vacío)
+const [precio, setPrecio] = useState<string>('');
 
 
 
@@ -88,16 +88,17 @@ import 'react-toastify/dist/ReactToastify.css';
          setEnviando(false);
         return;
       }
-if (cantidadJugadores <= 0) {
-  toast.error('Ingresá una cantidad de jugadores válida.');
-  setEnviando(false);
-  return;
-}
+
       if (!latitud || !longitud) {
         toast.error('Intenta marcar la ubicación en el mapa');
          setEnviando(false);
         return;
       }
+      if (!Number.isInteger(cantidadJugadores) || cantidadJugadores < 1) {
+  toast.error('Ingresá una cantidad de jugadores válida (entero ≥ 1).');
+  setEnviando(false);
+  return;
+}
 
       if (!esPremium) {
         if (cantidadJugadores > 12) {
@@ -107,7 +108,11 @@ if (cantidadJugadores <= 0) {
           return;
         }
  const fechaSinZona = fecha;       // "2025-07-19"
-
+  const horaSinZona = hora;  
+  console.log("fechaSinZona")   
+  console.log(fechaSinZona)   
+  console.log("horaSinZona") 
+  console.log(horaSinZona) 
 
 
   const res = await fetch(`${API_URL}/api/partidos/cantidad`, {
@@ -121,6 +126,9 @@ if (cantidadJugadores <= 0) {
 
   const data = await res.json();
 
+  // 🔒 Cantidad de jugadores: entero >= 1
+
+
         if (data.cantidad >= 1) {
           toast.error('Solo podés crear 1 partidos por día siendo usuario no premium.');
           setEnviando(false);
@@ -130,30 +138,32 @@ if (cantidadJugadores <= 0) {
         if (rangoEdad.length === 0 && categorias.length === 0) {
       toast.warning('⚠️ No seleccionaste edad ni categoría. Se invitará a todos los jugadores por defecto.');
        setEnviando(false);
-       return;
     } else if (rangoEdad.length === 0) {
       toast.warning('⚠️ No seleccionaste rango de edad. Se invitará a todas las edades.');
        setEnviando(false);
-       return;
     } else if (categorias.length === 0) {
       toast.warning('⚠️ No seleccionaste categoría. Se invitará a todas las categorías.');
        setEnviando(false);
-       return;
     }
   const fechaSinZona = fecha;       // "2025-07-19"
   const horaSinZona = hora;  
+  console.log("fechaSinZona")   
+  console.log(fechaSinZona)   
+  console.log("horaSinZona") 
+  console.log(horaSinZona)  // "15:30"
 
+
+  // [NUEVO] Normalización del precio: '' -> null | número >= 0
 const precioNormalizado =
-  precio.trim() === '' ? null : Number(precio);
+  precio.trim() === '' ? null : parseInt(precio, 10);
 
 if (precioNormalizado !== null && (Number.isNaN(precioNormalizado) || precioNormalizado < 0)) {
-  toast.error('Precio inválido (no puede ser negativo ni texto).');
+  toast.error('Precio inválido (debe ser un número entero ≥ 0).');
   setEnviando(false);
   return;
 }
 
-
-
+  // ejemplo: "2025-07-19T15:30:00"
       const partidoData = {
         fecha: fechaSinZona,
         hora:horaSinZona,
@@ -165,11 +175,12 @@ if (precioNormalizado !== null && (Number.isNaN(precioNormalizado) || precioNorm
         organizadorId,
         latitud,
         longitud,
+          precio: precioNormalizado,
         rangoEdad,   // ← Array de strings
     categorias,
         canchaId: canchaSeleccionada?.id || null,
   canchaNombreManual: canchaSeleccionada?.nombre || canchaManual || null,
-  precio: precioNormalizado,
+
         sexo,
         ubicacionManual,
       
@@ -186,10 +197,7 @@ if (precioNormalizado !== null && (Number.isNaN(precioNormalizado) || precioNorm
       .then(data => {
     if (!esPremium && data.cantidad >= 2) {
       setMostrarModalPremium(true);
-       setEnviando(false);   // 👈 reactivar botón
-    return;
-
-      
+      return;
     }
 
     toast.success('¡Partido creado y notificaciones enviadas!');
@@ -199,7 +207,7 @@ if (precioNormalizado !== null && (Number.isNaN(precioNormalizado) || precioNorm
     setLugar('');
     setFecha('');
     setHora('');
-    setPrecio('');  // 👈 limpia el input de precio
+   setPrecio(''); // [NUEVO]
 
       setEnviando(false); //
   }
@@ -382,20 +390,41 @@ if (precioNormalizado !== null && (Number.isNaN(precioNormalizado) || precioNorm
 
               <label>Hora</label>
               <input type="time" value={hora} onChange={(e) => setHora(e.target.value)} style={{ width: '100%' }} />
-  
-              
-                            <input
-                type="number"
-                min={0}
-                placeholder="Precio por jugador (0 = Gratis)"
-                value={precio}
-                onChange={(e) => setPrecio(e.target.value)}
-                style={{ width: '100%', marginBottom: '15px',marginTop:'20px' }}
-              />
+              {/* [NUEVO] Precio por jugador */}
+<label>Precio por jugador (ARS)</label>
+<input
+  type="number"
+  min={0}
+  inputMode="numeric"
+  placeholder="0 = Gratis (opcional)"
+  value={precio}
+  onChange={(e) => setPrecio(e.target.value)}
+  style={{ width: '100%', marginBottom: '15px' }}
+/>
 
+           <label>Cantidad de jugadores</label>
+<input
+  type="number"
+  min={1}
+  step={1}
+  inputMode="numeric"
+  value={cantidadJugadores}
+  onKeyDown={(e) => {
+    // bloquea el signo '-' y '+'
+    if (e.key === '-' || e.key === '+') e.preventDefault();
+  }}
+  onChange={(e) => {
+    const n = parseInt(e.target.value || '0', 10);
+    // normaliza: NaN -> 1, negativos -> 1
+    if (Number.isNaN(n)) {
+      setCantidadJugadores(1);
+    } else {
+      setCantidadJugadores(Math.max(1, n));
+    }
+  }}
+  style={{ width: '100%' }}
+/>
 
-              <label>Cantidad de jugadores</label>
-              <input type="number" value={cantidadJugadores} onChange={(e) => setCantidadJugadores(Number(e.target.value))} style={{ width: '100%' }} />
 
               <div style={{ display: 'flex', marginTop: '20px', gap: '10px' }}>
           <button

@@ -408,7 +408,7 @@ useEffect(() => {
         <FaKey /> Calificar Jugadores
       </div>
       <div className="menu-item" onClick={() => setMostrarModalPublicidad(true)}>
-        <FaBullhorn /> Publicitar mi cancha
+        <FaBullhorn /> Publicitar mi establecimiento
       </div>
 
       <div className="menu-item" onClick={() => setMostrarModalSoporte(true)}>

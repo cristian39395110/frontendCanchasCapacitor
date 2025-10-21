@@ -17,7 +17,6 @@ export default function ReferidoQuick({ codigo }: Props) {
     [codigo]
   );
 
-  // 🔹 Mensaje predeterminado para compartir
   const mensajePredeterminado = useMemo(
     () =>
       `🔥 Ayudame a ganar increíbles premios descargando la app *MatchClub*.\n\n` +
@@ -26,6 +25,15 @@ export default function ReferidoQuick({ codigo }: Props) {
       `¡Sumate a los partidos, ganá puntos y participá por premios! ⚽🏆`,
     [link, codigo]
   );
+
+  const copiarCodigo = async () => {
+    try {
+      await navigator.clipboard.writeText(codigo);
+      alert("✅ Código copiado");
+    } catch {
+      alert("No se pudo copiar el código automáticamente.");
+    }
+  };
 
   const copiarMensaje = async () => {
     try {
@@ -44,10 +52,16 @@ export default function ReferidoQuick({ codigo }: Props) {
           text: mensajePredeterminado,
         });
       } catch {
-        window.open(`https://wa.me/?text=${encodeURIComponent(mensajePredeterminado)}`, "_blank");
+        window.open(
+          `https://wa.me/?text=${encodeURIComponent(mensajePredeterminado)}`,
+          "_blank"
+        );
       }
     } else {
-      window.open(`https://wa.me/?text=${encodeURIComponent(mensajePredeterminado)}`, "_blank");
+      window.open(
+        `https://wa.me/?text=${encodeURIComponent(mensajePredeterminado)}`,
+        "_blank"
+      );
     }
   };
 
@@ -61,8 +75,19 @@ export default function ReferidoQuick({ codigo }: Props) {
         <div className="rq-overlay" onClick={() => setOpen(false)}>
           <div className="rq-modal" onClick={(e) => e.stopPropagation()}>
             <h4>Invitá amigos 🏆</h4>
-            <p>
+            <p style={{ display: "flex", alignItems: "center", gap: 6 }}>
               Tu código de referido: <b>{codigo}</b>
+              <span
+                onClick={copiarCodigo}
+                style={{
+                  cursor: "pointer",
+                  fontSize: 13,
+                  color: "#3ecf8e",
+                  textDecoration: "underline",
+                }}
+              >
+                copiar
+              </span>
             </p>
 
             <textarea
